@@ -10,7 +10,7 @@ import android.widget.ListView;
 import com.dingj.chatjar.ChatServiceController;
 import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.content.SingleUser;
-
+import com.dingj.chat.UserAdapter;
 public class MainActivity extends Activity
 {
 	/**服务控制类*/
@@ -21,6 +21,8 @@ public class MainActivity extends Activity
 	private UserAdapter mUserAdapter;
 	/**用户列表*/
 	private List<SingleUser> mUserList = new ArrayList<SingleUser>();
+	private final boolean DEBUG = true;
+	private final String TAG = "MainActivity";
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -52,7 +54,10 @@ public class MainActivity extends Activity
 				getApplicationContext(), new NotifyObserver());
 		mCharServiceController.init();
 		mCharServiceController.connect();
-		
+		if(DEBUG)
+		{
+			JDingDebug.printfD(TAG, "connect over");
+		}
 		mUserListView = (ListView)findViewById(R.id.user_list);
 		mUserAdapter = new UserAdapter(getApplicationContext());
 		mUserListView.setAdapter(mUserAdapter);
