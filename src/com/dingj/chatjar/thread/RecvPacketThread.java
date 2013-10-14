@@ -24,6 +24,7 @@ public class RecvPacketThread implements Runnable
 	private boolean DEBUG = true;
 	public void run()
 	{
+		SystemVar.init();
 		try
 		{
 			DatagramSocket defaultSocket = SocketManage.getInstance()
@@ -32,6 +33,10 @@ public class RecvPacketThread implements Runnable
 			// byte[IpMsgConstant.PACKET_LENGTH], IpMsgConstant.PACKET_LENGTH);
 			while (true)
 			{
+				if(DEBUG)
+				{
+				    JDingDebug.printfSystem("1111111111");
+				}
 				DatagramPacket pack = new DatagramPacket(
 						new byte[IpMsgConstant.PACKET_LENGTH],
 						IpMsgConstant.PACKET_LENGTH);

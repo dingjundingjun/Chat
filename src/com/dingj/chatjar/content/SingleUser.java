@@ -77,14 +77,17 @@ public class SingleUser
 		SingleUser uv = new SingleUser();
 		uv.setUserName(dp.getSenderName());
 		uv.setHostName(dp.getSenderHost());
-		String[] buff = dp.getAdditional().split("\0");
-		if (buff.length >= 2)
+		if(dp.getAdditional() != null)
 		{
-			uv.setAlias(buff[0]);
-			uv.setGroupName(buff[1]);
-		} else
-		{
-			uv.setGroupName("对方未分组");
+			String[] buff = dp.getAdditional().split("\0");
+			if (buff.length >= 2)
+			{
+				uv.setAlias(buff[0]);
+				uv.setGroupName(buff[1]);
+			} else
+			{
+				uv.setGroupName("对方未分组");
+			}
 		}
 		uv.setIp(dp.getIp());
 		return uv;

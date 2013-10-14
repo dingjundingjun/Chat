@@ -1,6 +1,7 @@
 package com.dingj.chatjar;
 
 
+import com.dingj.chat.ChatService;
 import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.util.SystemVar;
 
@@ -58,6 +59,13 @@ public class ChatServiceController
 		}
 	}
 	
+	public void logn()
+	{
+		if(mCharService != null)
+		{
+			mCharService.logn();
+		}
+	}
 	/**
 	 * 下线断开局域网
 	 */

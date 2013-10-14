@@ -43,8 +43,17 @@ public class DataPacketHandler extends DataPacketAnalytical
 	@Override
 	public void ansentry(DataPacket dataPacket) // 有新的用户登陆
 	{
+		if(dataPacket == null)
+		{
+			return;
+		}
 		SingleUser usertemp = SingleUser.changeDataPacket(dataPacket);
-		if (mUserInfo.addUsers(usertemp))
+		DataPacket dp = new DataPacket(
+				IpMsgConstant.IPMSG_ANSENTRY);
+		dp.setAdditional(SystemVar.USER_NAME + "\0");
+		dp.setIp(NetUtil.getLocalHostIp());
+		NetUtil.sendUdpPacket(dp, dataPacket.getIp());
+		if(mUserInfo.addUsers(usertemp))
 		{
 			mObserver = SystemVar.gCCMsgControl.getObserver();
 			if (mObserver != null)
@@ -182,14 +191,33 @@ public class DataPacketHandler extends DataPacketAnalytical
 	@Override
 	public void br_entry(DataPacket dataPacket)
 	{
-		SingleUser user = SingleUser.changeDataPacket(dataPacket);
-		mUserInfo.addUsers(user);
-		DataPacket dp = new DataPacket(
-				IpMsgConstant.IPMSG_ANSENTRY);
-		dp.setAdditional(SystemVar.USER_NAME);
-		dp.setIp(NetUtil.getLocalHostIp());
-		ansentry(dataPacket);
-		NetUtil.sendUdpPacket(dp, dataPacket.getIp());
+		if(dataPacket == null)
+		{
+			return;
+		}
+		SingleUser usertemp = SingleUser.changeDataPacket(dataPacket);
+		if(mUserInfo.addUsers(usertemp))
+		{
+//			DataPacket dp = new DataPacket(
+//					IpMsgConstant.IPMSG_ANSENTRY);
+//			dp.setAdditional(SystemVar.USER_NAME);
+//			dp.setIp(NetUtil.getLocalHostIp());
+//			NetUtil.sendUdpPacket(dp, dataPacket.getIp());
+			mObserver = SystemVar.gCCMsgControl.getObserver();
+			if (mObserver != null)
+			{
+				mObserver.notifyAddUser(usertemp); // 通知UI更新
+				database.insertAccount(usertemp.getIp(), usertemp.getUserName()); // 写入数据库
+			}
+		}
+//		SingleUser user = SingleUser.changeDataPacket(dataPacket);
+//		mUserInfo.addUsers(user);
+//		DataPacket dp = new DataPacket(
+//				IpMsgConstant.IPMSG_ANSENTRY);
+//		dp.setAdditional(SystemVar.USER_NAME);
+//		dp.setIp(NetUtil.getLocalHostIp());
+////		ansentry(dataPacket);
+//		NetUtil.sendUdpPacket(dp, dataPacket.getIp());
 	}
 
 	public void removeUser(SingleUser user)

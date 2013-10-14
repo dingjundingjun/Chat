@@ -65,21 +65,17 @@ public class SystemVar
     */
    public static void init()
    {
-	   if(USER_NAME == "")
-	   {
-		   USER_NAME=System.getProperty("user.name");
-		   USER_NAME = "";
-	   }
-       USER_HOME=System.getProperty("user.home"); 
+	   USER_NAME=System.getProperty("user.name");
+	   USER_NAME = "dingj";
        USER_HOME = "dingjun";
        LINE_SEPARATOR=System.getProperty("line.separator");
        FILE_SEPARATOR=System.getProperty("file.separator");
        OS=IpMsgConstant.OS_OTHER;
-       try {
-           HOST_NAME = InetAddress.getLocalHost().getHostName();	//获取用户名
-       } catch (UnknownHostException ex) {
-           HOST_NAME="";
-       }
+//       try {
+           HOST_NAME = "DJ_HOST";	//获取用户名
+//       } catch (UnknownHostException ex) {
+//           HOST_NAME="";
+//       }
        DEFAULT_CHARACT="GB2312";
        JDingDebug.printfSystem("name:" + USER_NAME + " home:" + USER_HOME + " hostname:" + HOST_NAME);
 //       USER_LIST = new ArrayList<UsersVo>();

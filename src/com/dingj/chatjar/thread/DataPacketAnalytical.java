@@ -37,7 +37,7 @@ public abstract class DataPacketAnalytical implements Runnable
 						+ dataPacket.getCommandFunction());
 				switch((int) dataPacket.getCommandFunction())
 				{
-					case IpMsgConstant.IPMSG_ANSENTRY:    // 登录后应答信息
+					case IpMsgConstant.IPMSG_BR_ENTRY:    // 登录后应答信息
 					{
 						ansentry(dataPacket);
 						break;
@@ -47,7 +47,7 @@ public abstract class DataPacketAnalytical implements Runnable
 						reciveMsg(dataPacket);
 						break;
 					}
-					case IpMsgConstant.IPMSG_BR_ENTRY:// 添加成功设置在线用户数
+					case IpMsgConstant.IPMSG_ANSENTRY:// 添加成功设置在线用户数
 					{
 						br_entry(dataPacket);
 						break;
