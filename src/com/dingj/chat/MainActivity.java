@@ -15,8 +15,11 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.dingj.chatjar.ChatServiceController;
+import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.content.SingleUser;
+import com.dingj.chatjar.util.SystemVar;
+import com.dingj.chatjar.util.UserInfo;
 
 public class MainActivity extends Activity implements OnClickListener
 {
@@ -34,7 +37,8 @@ public class MainActivity extends Activity implements OnClickListener
 	private Button mBtnFresh;
 	/** 用户上线 */
 	private final int HANDLER_ADD_USER = 0;
-
+	/**新消息到来*/
+	private final int HANDLER_NEW_MSG = 1;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -96,9 +100,15 @@ public class MainActivity extends Activity implements OnClickListener
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case HANDLER_ADD_USER: {
-				mUserAdapter.setList(mUserList);
+				mUserAdapter.setList(UserInfo.getInstance().getAllUsers());
 				mUserAdapter.notifyDataSetChanged();
 				break;
+			}
+			case HANDLER_NEW_MSG:
+			{
+				IpmMessage ipmsg = (IpmMessage) msg.obj;
+				mUserAdapter.setUnReadMsg(ipmsg);
+				mUserAdapter.notifyDataSetChanged();
 			}
 			}
 		}
@@ -107,7 +117,6 @@ public class MainActivity extends Activity implements OnClickListener
 	private class NotifyObserver extends Observer {
 		@Override
 		public void notifyAddUser(SingleUser user) {
-			mUserList.add(user);
 			mNotifyHandler.sendEmptyMessage(HANDLER_ADD_USER);
 		}
 
@@ -118,9 +127,12 @@ public class MainActivity extends Activity implements OnClickListener
 		}
 
 		@Override
-		public void notifyNewMessage() {
-			// TODO Auto-generated method stub
-
+		public void notifyNewMessage(IpmMessage ipmsg) 
+		{
+			Message msg = new Message();
+			msg.obj = ipmsg;
+			msg.what = HANDLER_NEW_MSG;
+			mNotifyHandler.sendMessage(msg);
 		}
 
 		@Override
@@ -137,6 +149,8 @@ public class MainActivity extends Activity implements OnClickListener
 		{
 		case R.id.fresh:
 		{
+			mUserAdapter = new UserAdapter(getApplicationContext());
+			mUserListView.setAdapter(mUserAdapter);
 			mCharServiceController.logn();
 			break;
 		}

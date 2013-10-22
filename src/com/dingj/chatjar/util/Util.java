@@ -89,6 +89,12 @@ public static String getTime()
 				+ "." + (i >> 24 & 0xFF);
 	}
 	
+	public static String getIp3(int i)
+	{
+		return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF)
+				+ ".";
+	}
+	
 	public static boolean isWifeOpen(Context context)
 	{
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);

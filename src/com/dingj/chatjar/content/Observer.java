@@ -12,7 +12,7 @@ public abstract class Observer
 	/**接收文件*/
 	public abstract void notifyRecvFile();
 	/**新的消息*/
-	public abstract void notifyNewMessage();
+	public abstract void notifyNewMessage(IpmMessage ipmsg);
 	/**停止接收文件*/
 	public abstract void sendStop();
 }

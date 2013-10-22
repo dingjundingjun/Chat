@@ -26,7 +26,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 	/** 弹通知 */
 	private Notify mNotify;
 	private UserInfo mUserInfo = null;
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static final String TAG = "DataPacketHandler";
 
 	public DataPacketHandler(Context context)
@@ -55,12 +55,13 @@ public class DataPacketHandler extends DataPacketAnalytical
 		NetUtil.sendUdpPacket(dp, dataPacket.getIp());
 		if(mUserInfo.addUsers(usertemp))
 		{
-			mObserver = SystemVar.gCCMsgControl.getObserver();
-			if (mObserver != null)
-			{
-				mObserver.notifyAddUser(usertemp); // 通知UI更新
-				database.insertAccount(usertemp.getIp(), usertemp.getUserName()); // 写入数据库
-			}
+			database.insertAccount(usertemp.getIp(), usertemp.getUserName()); // 写入数据库
+		}
+		mObserver = SystemVar.gCCMsgControl.getObserver();
+		if (mObserver != null)
+		{
+			mObserver.notifyAddUser(usertemp); // 通知UI更新
+			
 		}
 	}
 
@@ -99,6 +100,10 @@ public class DataPacketHandler extends DataPacketAnalytical
 			ipmMessage.setTime(Util.getTime());
 			mUserVo.add(ipmMessage);
 			unreadMessage(ipmMessage);
+			if(DEBUG)
+			{
+				JDingDebug.printfD(TAG, "recive msg ==>" + additional);
+			}
 		}
 	}
 
@@ -121,7 +126,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 		mObserver = SystemVar.gCCMsgControl.getObserver();
 		if (mObserver != null)
 		{
-			mObserver.notifyNewMessage();
+			mObserver.notifyNewMessage(ipmMessage);
 		} else
 		{
 //			notify = new CCNotifyUnReadMessage(mContext);
@@ -198,11 +203,6 @@ public class DataPacketHandler extends DataPacketAnalytical
 		SingleUser usertemp = SingleUser.changeDataPacket(dataPacket);
 		if(mUserInfo.addUsers(usertemp))
 		{
-//			DataPacket dp = new DataPacket(
-//					IpMsgConstant.IPMSG_ANSENTRY);
-//			dp.setAdditional(SystemVar.USER_NAME);
-//			dp.setIp(NetUtil.getLocalHostIp());
-//			NetUtil.sendUdpPacket(dp, dataPacket.getIp());
 			mObserver = SystemVar.gCCMsgControl.getObserver();
 			if (mObserver != null)
 			{

@@ -96,25 +96,29 @@ public class ChatService extends Service
 			JDingDebug.printfD(TAG,"wifiIP:" + SystemVar.WIFIIP);
 		}
     	WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-        //判断wifi是否开启
         if (!wifiManager.isWifiEnabled()) 
         {
         	Toast.makeText(this, "wifi is not work", Toast.LENGTH_SHORT).show();
-//        	wifiManager.setWifiEnabled(true);
+        	return;
         }
     	WifiInfo wifiInfo = wifiManager.getConnectionInfo();     
     	int ipAddress = wifiInfo.getIpAddress(); 
     	SystemVar.WIFIIP = Util.intToIp(ipAddress);
-    	JDingDebug.printfSystem("wifiIP:" + SystemVar.WIFIIP);
-		 //发送登录信息包
-        DataPacket dp=new DataPacket(IpMsgConstant.IPMSG_BR_ENTRY);//
+    	if(DEBUG)
+    	{
+    	    JDingDebug.printfD(TAG,"hostIp:" + SystemVar.WIFIIP);
+    	}
+        DataPacket dp=new DataPacket(IpMsgConstant.IPMSG_BR_ENTRY);
         dp.setAdditional(SystemVar.USER_NAME + "\0");
-        dp.setIp(NetUtil.getLocalHostIp());
+        dp.setIp(SystemVar.WIFIIP);
         if(DEBUG)
         {
         	JDingDebug.printfD(TAG,"hostIp:" + dp.getIp());
         }
-        NetUtil.broadcastUdpPacket(dp);	
-//        NetUtil.broadcastUdpPacketToSecond(dp);
+        for(int i = 0;i<255;i++)
+        {
+        	String tempIp = Util.getIp3(ipAddress) + i;
+        	NetUtil.sendUdpPacket(dp, tempIp);
+        }
 	}
 }
