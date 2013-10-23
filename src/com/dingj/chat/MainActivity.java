@@ -11,6 +11,8 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -92,6 +94,13 @@ public class MainActivity extends Activity implements OnClickListener
 		mUserListView = (ListView) findViewById(R.id.user_list);
 		mUserAdapter = new UserAdapter(getApplicationContext());
 		mUserListView.setAdapter(mUserAdapter);
+		mUserListView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				
+			}
+		});
 	}
 
 	private class NotifyHandler extends Handler {

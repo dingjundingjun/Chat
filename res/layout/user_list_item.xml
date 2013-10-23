@@ -7,12 +7,16 @@
         android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/char_default_color"
+        android:textSize="@dimen/user_info_size"
         />
 	<TextView 
 	    android:id="@+id/user_ip"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	 	android:layout_below="@id/user_name"
+	 	android:textColor="@color/char_default_color"
+	 	android:textSize="@dimen/user_info_size"
 	    />
 	<TextView 
 	    android:id="@+id/newMsg"
@@ -22,5 +26,7 @@
 	    android:layout_alignParentRight="true"
 	    android:layout_alignParentBottom="true"
 	    android:visibility="gone"
+	    android:textColor="@color/new_msg_tip_color"
+	    android:textSize="@dimen/user_info_size"
 	    />
 </RelativeLayout>
