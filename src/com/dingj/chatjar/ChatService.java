@@ -1,4 +1,4 @@
-package com.dingj.chat;
+package com.dingj.chatjar;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,8 +10,9 @@ import com.dingj.chatjar.thread.DataPacketHandler;
 import com.dingj.chatjar.thread.RecvPacketThread;
 import com.dingj.chatjar.thread.SendFileHandler;
 import com.dingj.chatjar.util.IpMsgConstant;
-import com.dingj.chatjar.util.NetUtil;
+import com.dingj.chatjar.util.SendUtil;
 import com.dingj.chatjar.util.SystemVar;
+import com.dingj.chatjar.util.UserInfo;
 import com.dingj.chatjar.util.Util;
 
 import android.app.Service;
@@ -41,6 +42,13 @@ public class ChatService extends Service
 	}
 	
 	@Override
+	public void onCreate()
+	{
+		super.onCreate();
+		initThread();
+	}
+
+	@Override
 	public IBinder onBind(Intent intent)
 	{
 		if(DEBUG)
@@ -66,29 +74,10 @@ public class ChatService extends Service
                 .penaltyDeath()
                 .build());
 	}
-	/**
-	 * 建立一个新的连接
-	 */
-	public void connect()
-	{
-//		initNetProceess();
-		
-//		if(isrun == false)
-		{		
-			try {
-				mServerSocket = new ServerSocket(IpMsgConstant.IPMSG_DEFAULT_PORT);
-			} catch (IOException e) 
-			{
-				e.printStackTrace();
-			}
-			new Thread(new RecvPacketThread()).start();//recive packet 
-			new Thread(new DataPacketHandler(this)).start();
-//			new Thread(new SendFileHandler(mServerSocket)).start();//
-			logn();
-//			isrun = true;
-		}
-	}
 	
+	/**
+	 * 登录
+	 */
 	public void logn() 
 	{
 		if(DEBUG)
@@ -108,6 +97,8 @@ public class ChatService extends Service
     	{
     	    JDingDebug.printfD(TAG,"hostIp:" + SystemVar.WIFIIP);
     	}
+    	//从数据库获取姓名
+    	SystemVar.USER_NAME = SystemVar.db.getUserName();
         DataPacket dp=new DataPacket(IpMsgConstant.IPMSG_BR_ENTRY);
         dp.setAdditional(SystemVar.USER_NAME + "\0");
         dp.setIp(SystemVar.WIFIIP);
@@ -115,10 +106,20 @@ public class ChatService extends Service
         {
         	JDingDebug.printfD(TAG,"hostIp:" + dp.getIp());
         }
-        for(int i = 0;i<255;i++)
-        {
-        	String tempIp = Util.getIp3(ipAddress) + i;
-        	NetUtil.sendUdpPacket(dp, tempIp);
-        }
+//        SendUtil.broadcastUdpPacket(dp);
+        UserInfo.getInstance().clearUserList();    //登录以前重新刷新一次
+        SendUtil.broadcastUdpPacketToEvery(dp, ipAddress);
+	}
+	
+	private void initThread()
+	{
+		try {
+			mServerSocket = new ServerSocket(IpMsgConstant.IPMSG_DEFAULT_PORT);
+		} catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		new Thread(new RecvPacketThread()).start();//recive packet 
+		new Thread(new DataPacketHandler(this)).start();
 	}
 }

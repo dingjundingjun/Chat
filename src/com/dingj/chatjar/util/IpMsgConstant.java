@@ -12,7 +12,7 @@ public class IpMsgConstant
 	    
 	    public final static char OS_OTHER=2;	//android平台
 
-	    public final static String IPMSG_VERSION="1";
+	    public final static String IPMSG_VERSION="3.1.4";
 
 
 	   /*=================================================================

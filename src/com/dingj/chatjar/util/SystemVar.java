@@ -37,7 +37,7 @@ public class SystemVar
    public static String USER_NAME = null;                 //显示的用户名称
    public static String HOST_NAME = null;                 //显示的主机名称
 
-   public static List<SingleUser> USER_LIST = new ArrayList();                  //用户列表
+//   public static List<SingleUser> USER_LIST = new ArrayList();                  //用户列表
    public static List<SendFileInfo> TRANSPORT_FILE_LIST = new ArrayList();			//接收文件列表
 
    public static List<List<SingleUser>> gAllName = new ArrayList<List<SingleUser>>();

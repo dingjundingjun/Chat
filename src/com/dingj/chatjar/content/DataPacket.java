@@ -227,6 +227,9 @@ public class DataPacket
 	{
 		return version + ":" + packetNo + ":" + senderName + ":" + senderHost
 				+ ":" + commandNo + ":" + additional;
+//		return "ip = " + ip + "\nversion = " + version + "\n" + "packetNo = " + packetNo + "\n" + "senderName = " + senderName + "\n" + "senderHost = " + senderHost + "\n" + "commandNo = " + commandNo 
+//				+ "\n" + "addition = " + additional;
+				
 	}
 
 	public byte[] toByte()

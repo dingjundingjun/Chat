@@ -1,7 +1,6 @@
 package com.dingj.chatjar;
 
 
-import com.dingj.chat.ChatService;
 import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.util.SystemVar;
 
@@ -25,70 +24,80 @@ public class ChatServiceController
 	private boolean DEBUG = true;
 	/**服务接口*/
 	private ChatService mCharService;
+	/**和界面的回调接口*/
 	private Observer mNotifyControl;
-	private final String SERVICE_ACTION = "com.jdingj.chat.service";
-	public ChatServiceController(Context context,Observer observer)
+	private static ChatServiceController mChatsChatServiceController = null;
+	private final String SERVICE_ACTION = "com.jding.chatjar.chatservice";
+	public ChatServiceController()
 	{
 		super();
-		this.mContext = context;
-		mNotifyControl = observer;
 	}
+	
+	public static ChatServiceController getInstance(Context c,Observer ob)
+	{
+		if(mChatsChatServiceController == null)
+		{
+			mChatsChatServiceController = new ChatServiceController();
+		}
+		mChatsChatServiceController.init(c, ob);
+		return mChatsChatServiceController;
+	}
+	
 	/**
 	 * 初始化绑定服务
 	 */
-	public void init()
+	public void init(Context context,Observer observer)
 	{
-		Intent intent = new Intent(SERVICE_ACTION);
+		this.mContext = context;
+		this.mNotifyControl = observer;
+		Intent intent = new Intent(SERVICE_ACTION);    //启动服务
+		mContext.startService(intent);
 		boolean bind = mContext.bindService(intent, serviceConnect, Context.BIND_AUTO_CREATE);
 		if(!bind)
 		{
 			Toast.makeText(mContext, "bind service failed", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		SystemVar.gCCMsgControl.attach(mNotifyControl);
+		attach(observer);
+	}
+	
+	private ServiceConnection serviceConnect = new ServiceConnection()
+	{
+		public void onServiceDisconnected(ComponentName name)
+		{
+			mCharService = null;
+		}
+
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service)
+		{
+			mCharService = ((ChatService.CharBind) service).getService();
+			mNotifyControl.connectServiceSuccess();
+		}
+	};
+	
+	/**
+	 * 释放当前的控制句柄
+	 */
+	public void detach(Observer ob)
+	{
+		SystemVar.gCCMsgControl.detach(ob);
+	}
+	
+	public void attach(Observer ob)
+	{
+		SystemVar.gCCMsgControl.attach(ob);
 	}
 	
 	/**
-	 * 连接局域网
+	 * 连接上线
 	 */
-	public void connect()
-	{
-		if(mCharService != null)
-		{
-			mCharService.connect();
-		}
-	}
-	
 	public void logn()
 	{
+		//重新登录前是否要退出一下？
 		if(mCharService != null)
 		{
 			mCharService.logn();
 		}
 	}
-	/**
-	 * 下线断开局域网
-	 */
-	public void disconnect()
-	{
-		mContext.unbindService(serviceConnect);
-		SystemVar.gCCMsgControl.attach(mNotifyControl);
-	}
-	
-	private ServiceConnection serviceConnect = new ServiceConnection()
-	{
-		
-		@Override
-		public void onServiceDisconnected(ComponentName name)
-		{
-			mCharService = null;
-		}
-		
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service)
-		{
-			mCharService = ((ChatService.CharBind)service).getService();
-			mCharService.connect();
-		}
-	};
 }

@@ -44,10 +44,6 @@ public class RecvPacketThread implements Runnable
 				byte[] buffer = new byte[pack.getLength()];
 				// JDingDebug.printfSystem("长度:" + pack.getLength());
 				System.arraycopy(pack.getData(), 0, buffer, 0, buffer.length);    //将收到的数据拷贝倒buffer
-				if(DEBUG)
-				{
-				    JDingDebug.printfSystem("内容:" + new String(pack.getData()));
-				}
 				// for(int i=0;i<buffer.length-1;i++)
 				// {
 				// if(buffer[i] == 0)
@@ -60,6 +56,10 @@ public class RecvPacketThread implements Runnable
 				if (dataPacket != null)
 				{
 					SystemVar.PACKET_QUEUE_EMPTY.acquire();
+					if(DEBUG)
+					{
+					    JDingDebug.printfSystem("内容:" + new String(pack.getData()));
+					}
 					PacketQueue.pushPacket(dataPacket);
 					SystemVar.PACKET_QUEUE_FULL.release();
 				}

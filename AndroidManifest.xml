@@ -26,11 +26,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.dingj.chat.SettingActivity"
+            >
+        </activity>
+        <activity
+            android:name="com.dingj.chat.MessageActivity"
+            >
+        </activity>
         <service 
-            android:name="com.dingj.chat.ChatService"
+            android:name="com.dingj.chatjar.ChatService"
             >
             <intent-filter >
-                <action android:name="com.jdingj.chat.service"/>
+                <action android:name="com.jding.chatjar.chatservice"/>
             </intent-filter>
         </service>
     </application>

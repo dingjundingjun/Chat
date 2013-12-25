@@ -5,6 +5,7 @@ import java.util.List;
 
 import jding.debug.JDingDebug;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,8 +21,8 @@ import com.dingj.chatjar.ChatServiceController;
 import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.content.SingleUser;
-import com.dingj.chatjar.util.SystemVar;
 import com.dingj.chatjar.util.UserInfo;
+import com.dingj.chatjar.util.Util;
 
 public class MainActivity extends Activity implements OnClickListener
 {
@@ -37,16 +38,18 @@ public class MainActivity extends Activity implements OnClickListener
 	private final String TAG = "MainActivity";
 	private NotifyHandler mNotifyHandler = new NotifyHandler();
 	private Button mBtnFresh;
-	/** 用户上线 */
-	private final int HANDLER_ADD_USER = 0;
-	/**新消息到来*/
-	private final int HANDLER_NEW_MSG = 1;
+	private Button mBtnSetting;
+	/**监听类*/
+	private NotifyObserver mNotifyObserver = new NotifyObserver();
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		mBtnFresh = (Button)findViewById(R.id.fresh);
+		mBtnFresh = (Button) findViewById(R.id.fresh);
 		mBtnFresh.setOnClickListener(this);
+		mBtnSetting = (Button) findViewById(R.id.setting);
+		mBtnSetting.setOnClickListener(this);
 		iniNet();
 		init();
 	}
@@ -69,100 +72,148 @@ public class MainActivity extends Activity implements OnClickListener
 	}
 	
 	@Override
-	protected void onDestroy() {
+	protected void onDestroy() 
+	{
 		super.onDestroy();
 	}
 
 	@Override
-	protected void onStop() {
+	protected void onStop()
+	{
 		super.onStop();
-		mCharServiceController.disconnect();
+		mCharServiceController.detach(mNotifyObserver);
 	}
 
 	/**
 	 * 初始化
 	 */
-	private void init() {
+	private void init()
+	{
 		mUserList.clear();
-		mCharServiceController = new ChatServiceController(
-				getApplicationContext(), new NotifyObserver());
-		mCharServiceController.init();
-		mCharServiceController.connect();
-		if (DEBUG) {
+		mCharServiceController = ChatServiceController.getInstance(
+				getApplicationContext(), mNotifyObserver);
+		if (DEBUG)
+		{
 			JDingDebug.printfD(TAG, "connect over");
 		}
 		mUserListView = (ListView) findViewById(R.id.user_list);
 		mUserAdapter = new UserAdapter(getApplicationContext());
 		mUserListView.setAdapter(mUserAdapter);
-		mUserListView.setOnItemClickListener(new OnItemClickListener() {
+		mUserListView.setOnItemClickListener(new OnItemClickListener()
+		{
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
-				
+			public void onItemClick(AdapterView<?> arg0, View view, int arg2,
+					long arg3)
+			{
+				Intent intent = new Intent(MainActivity.this,
+						MessageActivity.class);
+				String ip = (String) view.getTag();
+				intent.putExtra("ip", ip);
+				startActivity(intent);
 			}
 		});
 	}
 
-	private class NotifyHandler extends Handler {
+	private class NotifyHandler extends Handler 
+	{
 		@Override
-		public void handleMessage(Message msg) {
+		public void handleMessage(Message msg)
+		{
 			super.handleMessage(msg);
-			switch (msg.what) {
-			case HANDLER_ADD_USER: {
-				mUserAdapter.setList(UserInfo.getInstance().getAllUsers());
-				mUserAdapter.notifyDataSetChanged();
-				break;
-			}
-			case HANDLER_NEW_MSG:
+			switch(msg.what)
 			{
-				IpmMessage ipmsg = (IpmMessage) msg.obj;
-				mUserAdapter.setUnReadMsg(ipmsg);
-				mUserAdapter.notifyDataSetChanged();
-			}
+				case Util.HANDLER_ADD_USER:
+				{
+					mUserAdapter.setList(UserInfo.getInstance().getAllUsers());
+					mUserAdapter.notifyDataSetChanged();
+					break;
+				}
+				case Util.HANDLER_NEW_MSG:
+				{
+					IpmMessage ipmsg = (IpmMessage) msg.obj;
+					mUserAdapter.setUnReadMsg(ipmsg);
+					mUserAdapter.notifyDataSetChanged();
+					break;
+				}
 			}
 		}
 	}
 
-	private class NotifyObserver extends Observer {
+	private class NotifyObserver extends Observer
+	{
 		@Override
-		public void notifyAddUser(SingleUser user) {
-			mNotifyHandler.sendEmptyMessage(HANDLER_ADD_USER);
-		}
-
-		@Override
-		public void notifyRecvFile() {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void notifyNewMessage(IpmMessage ipmsg) 
+		public void notifyAddUser(SingleUser user)
 		{
+			mNotifyHandler.sendEmptyMessage(Util.HANDLER_ADD_USER);
+		}
+
+		@Override
+		public void notifyRecvFile()
+		{
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void notifyNewMessage(IpmMessage ipmsg)
+		{
+			if(DEBUG)
+			{
+				JDingDebug.printfD(TAG, "notifyNewMessage");
+			}
 			Message msg = new Message();
 			msg.obj = ipmsg;
-			msg.what = HANDLER_NEW_MSG;
+			msg.what = Util.HANDLER_NEW_MSG;
 			mNotifyHandler.sendMessage(msg);
 		}
 
 		@Override
-		public void sendStop() {
-			// TODO Auto-generated method stub
+		public void sendStop()
+		{
 
+		}
+
+		@Override
+		public void connectServiceSuccess()
+		{
+			mCharServiceController.logn();
 		}
 
 	}
 
 	@Override
-	public void onClick(View arg0) {
+	public void onClick(View arg0)
+	{
 		switch(arg0.getId())
 		{
-		case R.id.fresh:
-		{
-			mUserAdapter = new UserAdapter(getApplicationContext());
-			mUserListView.setAdapter(mUserAdapter);
-			mCharServiceController.logn();
-			break;
+			case R.id.fresh:
+			{
+				updateLogn();
+				break;
+			}
+			case R.id.setting:
+			{
+				Intent intent = new Intent(this,SettingActivity.class);
+				startActivity(intent);
+				break;
+			}
 		}
-		}
+	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		mCharServiceController.attach(mNotifyObserver);
+		
+	}
+	
+	/**
+	 * 刷新列表
+	 */
+	private void updateLogn()
+	{
+		mCharServiceController.logn();
+		mUserAdapter.clearUser();
+		mUserListView.setAdapter(mUserAdapter);
 	}
 }

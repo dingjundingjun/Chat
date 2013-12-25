@@ -1,8 +1,11 @@
 package com.dingj.chatjar.db;
 
 
+import jding.debug.JDingDebug;
+
 import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.SingleUser;
+import com.dingj.chatjar.util.SystemVar;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,7 +18,8 @@ public class MsgDatabase
 	private SQLiteDatabase db = null;
 	private Context mContext;
 	private CCmsgDatabaseHelper ccmsgDatabaseHelper = null;
-
+	private boolean DEBUG = true;
+	private final String TAG = "MsgDatabase";
 	public MsgDatabase(Context context)
 	{
 		mContext = context;
@@ -39,14 +43,105 @@ public class MsgDatabase
 		return db.isOpen();
 	}
 
+	/**
+	 * 修改当前用户名称
+	 * @param name
+	 */
+	public void modifyUserName(String name)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(CCmsgDatabaseHelper.USER_NAME, name);
+		try
+		{
+			String queryUserNameSql = "select * from "
+					+ CCmsgDatabaseHelper.USER_TABEL;
+			Cursor cursor = null;
+			try
+			{
+				cursor = db.rawQuery(queryUserNameSql, null);
+				if(cursor.getCount() == 0)
+				{
+					db.insert(CCmsgDatabaseHelper.USER_TABEL, null, contentValues);
+				}
+				if(cursor != null)
+				{
+					cursor.close();
+				}
+			}
+			catch(Exception e)
+			{
+				
+			}
+			db.update(CCmsgDatabaseHelper.USER_TABEL, contentValues,"_id=1",null);
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 获取用户名
+	 * @return
+	 */
+	public String getUserName()
+	{
+		String queryUserNameSql = "select * from "
+				+ CCmsgDatabaseHelper.USER_TABEL;
+		Cursor cursor = null;
+		try
+		{
+			cursor = db.rawQuery(queryUserNameSql, null);
+			if(cursor != null && cursor.moveToFirst())
+			{
+				SystemVar.USER_NAME = cursor.getString(cursor.getColumnIndex(CCmsgDatabaseHelper.USER_NAME));
+			}
+		}
+		catch(Exception e)
+		{
+			
+		}
+		if(cursor != null)
+		{
+			cursor.close();
+		}
+		return SystemVar.USER_NAME;
+	}
+	
 	public void insertAccount(String ip, String name)
 	{
+		String queryUserNameSql = "select * from "
+				+ CCmsgDatabaseHelper.ACCOUNT_TABLE_NAME + " where ip='" + ip + "'";
+		Cursor cursor = null;
+		try
+		{
+			cursor = db.rawQuery(queryUserNameSql, null);
+			if(cursor.getCount() != 0)
+			{
+				if(cursor != null)
+				{
+					cursor.close();
+				}
+				return;
+			}
+			if(cursor != null)
+			{
+				cursor.close();
+			}
+		}
+		catch(Exception e)
+		{
+			
+		}
+		if(DEBUG)
+		{
+			JDingDebug.printfD(TAG, "insertAccount = " + ip);
+		}
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(CCmsgDatabaseHelper.ACCOUNT_IP, ip);
 		contentValues.put(CCmsgDatabaseHelper.ACCOUNT_NAME, name);
 		try
 		{
-			db.insert(CCmsgDatabaseHelper.ACCOUNT_TABEL_NAME, null,
+			db.insert(CCmsgDatabaseHelper.ACCOUNT_TABLE_NAME, null,
 					contentValues);
 		} catch (Exception e)
 		{
@@ -71,7 +166,7 @@ public class MsgDatabase
 		contentValues.put(CCmsgDatabaseHelper.MESSAGE_KEY, key);
 		try
 		{
-			db.insert(CCmsgDatabaseHelper.MESSAGE_TABEL_NAME, null,
+			db.insert(CCmsgDatabaseHelper.MESSAGE_TABLE_NAME, null,
 					contentValues);
 		} catch (Exception e)
 		{
@@ -90,14 +185,13 @@ public class MsgDatabase
 		{
 			e.printStackTrace();
 		}
-
 	}
 
 	public void deleteMessages(String key)
 	{
 		try
 		{
-			db.delete(CCmsgDatabaseHelper.MESSAGE_TABEL_NAME,
+			db.delete(CCmsgDatabaseHelper.MESSAGE_TABLE_NAME,
 					CCmsgDatabaseHelper.MESSAGE_KEY + "=?", new String[]
 					{ key });
 		} catch (Exception e)
@@ -116,9 +210,14 @@ public class MsgDatabase
 
 	public void getMessages(SingleUser user)
 	{
+		user.cleanAllList();
 		String queryMessagesSql = "select * from "
-				+ CCmsgDatabaseHelper.MESSAGE_TABEL_NAME + " where messagekey="
+				+ CCmsgDatabaseHelper.MESSAGE_TABLE_NAME + " where messagekey="
 				+ "'" + user.getIp() + "'";
+		if(DEBUG)
+		{
+			JDingDebug.printfD(TAG, "queryMessagesSql = " + queryMessagesSql);
+		}
 		Cursor cursor = null;
 		try
 		{
@@ -131,6 +230,12 @@ public class MsgDatabase
 					ipmMessage.setText(cursor.getString(1));
 					ipmMessage.setTime(cursor.getString(2));
 					ipmMessage.setName(cursor.getString(3));
+					if(DEBUG)
+					{
+						JDingDebug.printfD(TAG, "text = " + cursor.getString(1));
+						JDingDebug.printfD(TAG, "time = " + cursor.getString(2));
+						JDingDebug.printfD(TAG, "name = " + cursor.getString(3));
+					}
 					user.addAllMessages(ipmMessage);
 					if (!cursor.isLast())
 						cursor.moveToNext();

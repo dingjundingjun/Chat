@@ -157,4 +157,5 @@ public class SingleUser
 		if(listAllMessage != null)
 			listAllMessage.clear();
 	}
+	
 }

@@ -8,7 +8,7 @@ import com.dingj.chatjar.content.SendFileInfo;
 import com.dingj.chatjar.content.SingleUser;
 import com.dingj.chatjar.db.MsgDatabase;
 import com.dingj.chatjar.util.IpMsgConstant;
-import com.dingj.chatjar.util.NetUtil;
+import com.dingj.chatjar.util.SendUtil;
 import com.dingj.chatjar.util.Notify;
 import com.dingj.chatjar.util.NotifyRecvFile;
 import com.dingj.chatjar.util.SystemVar;
@@ -47,12 +47,16 @@ public class DataPacketHandler extends DataPacketAnalytical
 		{
 			return;
 		}
+		if(DEBUG)
+		{
+			JDingDebug.printfD(TAG, "ansentry");
+		}
 		SingleUser usertemp = SingleUser.changeDataPacket(dataPacket);
 		DataPacket dp = new DataPacket(
 				IpMsgConstant.IPMSG_ANSENTRY);
 		dp.setAdditional(SystemVar.USER_NAME + "\0");
-		dp.setIp(NetUtil.getLocalHostIp());
-		NetUtil.sendUdpPacket(dp, dataPacket.getIp());
+		dp.setIp(Util.getLocalHostIp());
+		SendUtil.sendUdpPacket(dp, dataPacket.getIp());    //发送一个消息响应登录
 		if(mUserInfo.addUsers(usertemp))
 		{
 			database.insertAccount(usertemp.getIp(), usertemp.getUserName()); // 写入数据库
@@ -74,7 +78,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 			DataPacket tmpPacket = new DataPacket(IpMsgConstant.IPMSG_RECVMSG);
 			tmpPacket.setAdditional(dataPacket.getPacketNo());
 			tmpPacket.setIp(dataPacket.getIp());
-			NetUtil.sendUdpPacket(tmpPacket, tmpPacket.getIp());
+			SendUtil.sendUdpPacket(tmpPacket, tmpPacket.getIp());
 		}
 
 		SingleUser mUserVo = Util.getUserWithIp(dataPacket.getIp(), mUserInfo);
@@ -96,7 +100,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 			IpmMessage ipmMessage = new IpmMessage();
 			ipmMessage.setIp(dataPacket.getIp());
 			ipmMessage.setText(additional);
-			ipmMessage.setName(dataPacket.getSenderName());
+			ipmMessage.setName(mUserVo.getUserName());
 			ipmMessage.setTime(Util.getTime());
 			mUserVo.add(ipmMessage);
 			unreadMessage(ipmMessage);
@@ -203,6 +207,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 		SingleUser usertemp = SingleUser.changeDataPacket(dataPacket);
 		if(mUserInfo.addUsers(usertemp))
 		{
+			JDingDebug.printfD(TAG, "br_entry ==> br_entry");
 			mObserver = SystemVar.gCCMsgControl.getObserver();
 			if (mObserver != null)
 			{

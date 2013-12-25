@@ -71,6 +71,7 @@ public class UserAdapter extends BaseAdapter
 		{
 			userName.setText(mUserList.get(position).getUserName());
 			userIp.setText(mUserList.get(position).getIp());
+			convertView.setTag(mUserList.get(position).getIp());    //ip唯一
 			if(mUnReadMsg != null && mUnReadMsg.getIp().equals(mUserList.get(position).getIp()))
 			{
 				newMsg.setVisibility(View.VISIBLE);
@@ -96,6 +97,11 @@ public class UserAdapter extends BaseAdapter
 	public void setUnReadMsg(IpmMessage ipmsg) 
 	{
 		mUnReadMsg = ipmsg;
+	}
+	
+	public void clearUser()
+	{
+		this.mUserList.clear();
 	}
 	
 }

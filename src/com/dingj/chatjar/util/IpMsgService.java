@@ -21,7 +21,7 @@ public class IpMsgService
             DataPacket data=new DataPacket(IpMsgConstant.IPMSG_SENDMSG);
             data.setIp(ips[i]);
             data.setAdditional(Text);
-            NetUtil.sendUdpPacket(data, data.getIp());
+            SendUtil.sendUdpPacket(data, data.getIp());
         }
     }
     
@@ -30,7 +30,7 @@ public class IpMsgService
         DataPacket data=new DataPacket(230);
         data.setIp(ip);
         data.setAdditional(fileNO);
-        NetUtil.sendUdpPacket(data, data.getIp());
+        SendUtil.sendUdpPacket(data, data.getIp());
     }
     
     public static void sendStopSendFile(String fileNO,String ip)
@@ -38,7 +38,7 @@ public class IpMsgService
         DataPacket data=new DataPacket(232);
         data.setIp(ip);
         data.setAdditional(fileNO);
-        NetUtil.sendUdpPacket(data, data.getIp());
+        SendUtil.sendUdpPacket(data, data.getIp());
     }
     
     public static void sendFile(String ip,String path,long t)
@@ -57,7 +57,7 @@ public class IpMsgService
 	     if(file.isDirectory())
 	    	 sendFileInfo.isDir = true;
 	     SystemVar.TRANSPORT_FILE_LIST.add(sendFileInfo);
-	     NetUtil.sendUdpPacket(data, data.getIp());
+	     SendUtil.sendUdpPacket(data, data.getIp());
     }
     
     public static void stopSendFile(String ip,String fileNo)
@@ -65,7 +65,7 @@ public class IpMsgService
     	 DataPacket data=new DataPacket(IpMsgConstant.IPMSG_STOPFILE,0);
 	     data.setIp(ip);
 	     data.setAdditional(fileNo);
-	     NetUtil.sendUdpPacket(data, data.getIp());
+	     SendUtil.sendUdpPacket(data, data.getIp());
     }
     
     public static void sendFiles(String ip,String path,long t)
@@ -86,7 +86,7 @@ public class IpMsgService
 	     sendFileInfo.setFileSize(length);
 	     length = 0;
 	     SystemVar.TRANSPORT_FILE_LIST.add(sendFileInfo);
-	     NetUtil.sendUdpPacket(data, data.getIp());
+	     SendUtil.sendUdpPacket(data, data.getIp());
     }
     
     public static String getSB(String path,DataPacket data)

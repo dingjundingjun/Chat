@@ -16,7 +16,12 @@ import android.net.wifi.WifiManager;
 
 import jding.debug.JDingDebug;
 
-public class NetUtil
+/**
+ * 处理一些发送 
+ * @author 丁俊
+ *
+ */
+public class SendUtil
 {
 	private static final String TAG = "NetUtil";
 	private static boolean DEBUG = true;
@@ -67,7 +72,6 @@ public class NetUtil
 		{
 		}
 	}
-
 	
 	 /**
 	 * 发送局域网内广播
@@ -76,31 +80,15 @@ public class NetUtil
 	public static void broadcastUdpPacket(DataPacket dataPacket)
 	{
 		sendUdpPacket(dataPacket, "255.255.255.255");
+     
 	}
 
-	public static void broadcastUdpPacketToSecond(DataPacket dataPacket)
+	public static void broadcastUdpPacketToEvery(DataPacket dataPacket, int ip)
 	{
-		int i = 0;
-		for (i = 0; i < 255; i++)
+		for (int i = 0; i < 255; i++)
 		{
-			String ip = "192.168.123." + i;
-			sendUdpPacket(dataPacket, ip);
-		}
-	}
-
-	/**
-	 * 获得本机ip
-	 * 
-	 * @return 本机ip
-	 */
-	public static String getLocalHostIp()
-	{
-		try
-		{
-			return InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException ex)
-		{
-			return null;
+			String tempIp = Util.getIp3(ip) + i;
+			sendUdpPacket(dataPacket, tempIp);
 		}
 	}
 }

@@ -5,7 +5,7 @@ import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.SendFileInfo;
 import com.dingj.chatjar.content.SingleUser;
 import com.dingj.chatjar.util.IpMsgConstant;
-import com.dingj.chatjar.util.NetUtil;
+import com.dingj.chatjar.util.SendUtil;
 import com.dingj.chatjar.util.PacketQueue;
 import com.dingj.chatjar.util.SystemVar;
 import com.dingj.chatjar.util.UserInfo;

@@ -1,11 +1,14 @@
 package com.dingj.chatjar.util;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.text.format.Time;
 
+import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.content.SingleUser;
 
 /**
@@ -15,6 +18,11 @@ import com.dingj.chatjar.content.SingleUser;
  */
 public class Util
 {
+	/** 用户上线 */
+	public final static int HANDLER_ADD_USER = 0;
+	/**新消息到来*/
+	public final static int HANDLER_NEW_MSG = 1;
+	
 	public static void sendFile(String ip,String path,long t)
 	{
 			File file = new File(path);
@@ -39,9 +47,9 @@ public static String getTime()
 		int day = time.monthDay;
 		String timetemp;
 		if(minute < 10)
-			timetemp = /*year + "年" + month + "月" + day + "日 " +*/ hour + ":0" + minute;
+			timetemp = year + "-" + month + "-" + day + " " + hour + ":0" + minute;
 		else
-			timetemp = /*year + "年" + month + "月" + day + "日 " +*/ hour + ":" + minute;
+			timetemp = year + "-" + month + "-" + day + " " + hour + ":" + minute;
 		return timetemp;
 	}
    
@@ -99,5 +107,21 @@ public static String getTime()
 	{
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		return wifiManager.isWifiEnabled();
+	}
+	
+	/**
+	 * 获得本机ip
+	 * 
+	 * @return 本机ip
+	 */
+	public static String getLocalHostIp()
+	{
+		try
+		{
+			return InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException ex)
+		{
+			return null;
+		}
 	}
 }

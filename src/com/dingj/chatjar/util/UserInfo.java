@@ -68,6 +68,7 @@ public class UserInfo
 	 */
 	public void clearUserList()
 	{
+		if(mUserList != null)
 		mUserList.clear();
 	}
 

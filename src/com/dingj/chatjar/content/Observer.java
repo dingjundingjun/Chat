@@ -15,4 +15,6 @@ public abstract class Observer
 	public abstract void notifyNewMessage(IpmMessage ipmsg);
 	/**停止接收文件*/
 	public abstract void sendStop();
+	/**绑定服务成功*/
+	public abstract void connectServiceSuccess();
 }
