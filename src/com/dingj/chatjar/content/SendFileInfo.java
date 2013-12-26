@@ -1,10 +1,14 @@
 package com.dingj.chatjar.content;
 public class SendFileInfo
 {
+	/**文件序号*/
 	private String fileNo;
+	/**文件名*/
 	private String fileName;
+	/**文件路径*/
 	private String filePath;
 	private DataPacket dataPacker;
+	/**发送的ip*/
 	private String ip;
 	private long sendSize = 0;
 	private long fileSize = 0;
@@ -13,7 +17,7 @@ public class SendFileInfo
 	public boolean isDir = false;
 	public boolean isBreakTransport = false;
 	private String property;
-	
+	private long uniqueTime = 0;
 	public boolean isDirStop = false;
 	public SendFileInfo() 
 	{
@@ -83,5 +87,15 @@ public class SendFileInfo
 	public void setSend(boolean b)
 	{
 		isSend = b;
+	}
+	
+	public void setUniqueTime(long time)
+	{
+		this.uniqueTime = time;
+	}
+	
+	public long getUniqueTime()
+	{
+		return uniqueTime;
 	}
 }

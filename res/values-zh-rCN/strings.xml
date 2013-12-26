@@ -16,4 +16,7 @@
     <string name="name_cannot_null">姓名不能为空</string>
     <string name="back">返回</string>
     <string name="clean_all">清空</string>
+    <string name="time_key">时间key</string>
+    <string name="progress_key">进度key</string>
+    <string name="recv_msg">接收</string>
 </resources>

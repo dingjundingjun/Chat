@@ -5,4 +5,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 	<dimen name="user_info_size">24sp</dimen>
 	<dimen name="msg_edit_width">300dip</dimen>
+	<dimen name="msg_textview_maxwidth">300dip</dimen>
+	<dimen name="msg_textview_padding">10dip</dimen>
 </resources>

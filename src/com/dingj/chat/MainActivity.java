@@ -107,7 +107,9 @@ public class MainActivity extends Activity implements OnClickListener
 			{
 				Intent intent = new Intent(MainActivity.this,
 						MessageActivity.class);
+				
 				String ip = (String) view.getTag();
+				mUserAdapter.deleteUnReadIp(ip);
 				intent.putExtra("ip", ip);
 				startActivity(intent);
 			}

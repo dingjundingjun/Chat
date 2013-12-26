@@ -1,5 +1,6 @@
 package com.dingj.chatjar.db;
 
+import jding.debug.JDingDebug;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -17,6 +18,8 @@ public class CCmsgDatabaseHelper extends SQLiteOpenHelper
 	public final static String MESSAGE_ID = "_id";
 	public final static String MESSAGE_CONTENT = "mcontent";
 	public final static String MESSAGE_KEY = "messagekey";
+	public final static String MESSAGE_MOD = "mod";
+	public final static String MESSAGE_UNIQUE = "uniquetime";
 	public final static String MESSAGE_TIME = "mtime";
 	public final static String MESSAGE_FROM = "mfrom";
 	public final static String USER_NAME = "name";
@@ -27,7 +30,9 @@ public class CCmsgDatabaseHelper extends SQLiteOpenHelper
 	private final static String createMessageKey = "CREATE TABLE "
 			+ MESSAGE_TABLE_NAME + "(" + MESSAGE_ID
 			+ " INTEGER primary key autoincrement," + MESSAGE_CONTENT
-			+ " text," + MESSAGE_TIME + " text," + MESSAGE_FROM + " text," + MESSAGE_KEY + " text)";
+			+ " text," + MESSAGE_TIME + " text," + MESSAGE_FROM + " text,"
+			+ MESSAGE_MOD + " INTEGER," + MESSAGE_UNIQUE + " Long,"
+			+ MESSAGE_KEY + " text)";
 	private final static String createUserTabel = "CREATE TABLE " + USER_TABEL + "(" + ACCOUNT_ID + " INTEGER primary key autoincrement," + USER_NAME + " text)";
 	private Context mContext;
 	private String dbPath = "/data/data/com.chinachip.ccmsg/databases/ccmsg.db";
@@ -42,6 +47,7 @@ public class CCmsgDatabaseHelper extends SQLiteOpenHelper
 	{
 		try
 		{
+			JDingDebug.printfD("====================", createMessageKey);
 			db.execSQL(createAccountTabel);
 			db.execSQL(createMessageKey);
 			db.execSQL(createUserTabel);

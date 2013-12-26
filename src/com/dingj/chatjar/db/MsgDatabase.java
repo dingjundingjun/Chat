@@ -156,14 +156,17 @@ public class MsgDatabase
 	 * @param time
 	 * @param from
 	 */
-	public void insertMessage(String content, String key, String time,
-			String from)
+	public void insertMessage(IpmMessage ipmMessage)//String content, String key, String time,String from,int mod)
 	{
+		//ipmMessage.getText(), ipmMessage.getIp(),ipmMessage.getTime(),ipmMessage.getName(),ipmMessage.getMod());
+		
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(CCmsgDatabaseHelper.MESSAGE_CONTENT, content);
-		contentValues.put(CCmsgDatabaseHelper.MESSAGE_TIME, time);
-		contentValues.put(CCmsgDatabaseHelper.MESSAGE_FROM, from);
-		contentValues.put(CCmsgDatabaseHelper.MESSAGE_KEY, key);
+		contentValues.put(CCmsgDatabaseHelper.MESSAGE_CONTENT, ipmMessage.getText());
+		contentValues.put(CCmsgDatabaseHelper.MESSAGE_TIME, ipmMessage.getTime());
+		contentValues.put(CCmsgDatabaseHelper.MESSAGE_FROM, ipmMessage.getName());
+		contentValues.put(CCmsgDatabaseHelper.MESSAGE_KEY, ipmMessage.getIp());
+		contentValues.put(CCmsgDatabaseHelper.MESSAGE_MOD, ipmMessage.getMod());
+		contentValues.put(CCmsgDatabaseHelper.MESSAGE_UNIQUE,ipmMessage.getUniqueTime());
 		try
 		{
 			db.insert(CCmsgDatabaseHelper.MESSAGE_TABLE_NAME, null,
@@ -230,11 +233,15 @@ public class MsgDatabase
 					ipmMessage.setText(cursor.getString(1));
 					ipmMessage.setTime(cursor.getString(2));
 					ipmMessage.setName(cursor.getString(3));
+					ipmMessage.setMod(cursor.getInt(4));
+					ipmMessage.setUniqueTime(cursor.getLong(5));
 					if(DEBUG)
 					{
 						JDingDebug.printfD(TAG, "text = " + cursor.getString(1));
 						JDingDebug.printfD(TAG, "time = " + cursor.getString(2));
 						JDingDebug.printfD(TAG, "name = " + cursor.getString(3));
+						JDingDebug.printfD(TAG, "mod = " + cursor.getString(4));
+						JDingDebug.printfD(TAG, "unique = " + cursor.getString(5));
 					}
 					user.addAllMessages(ipmMessage);
 					if (!cursor.isLast())
@@ -256,4 +263,6 @@ public class MsgDatabase
 			}
 		}
 	}
+	
+	
 }

@@ -102,6 +102,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 			ipmMessage.setText(additional);
 			ipmMessage.setName(mUserVo.getUserName());
 			ipmMessage.setTime(Util.getTime());
+			ipmMessage.setMod(Util.IPM_MOD_RECV);
 			mUserVo.add(ipmMessage);
 			unreadMessage(ipmMessage);
 			if(DEBUG)
@@ -175,22 +176,28 @@ public class DataPacketHandler extends DataPacketAnalytical
 				sendFileInfo.setFileName(fileinfo.getFileName());
 				sendFileInfo.setFileNo(fileinfo.getFileNo());
 				sendFileInfo.setProperty(fileinfo.getFileProperty());
+				long time = System.currentTimeMillis();
+				sendFileInfo.setUniqueTime(time);
 				String size = "0x" + fileinfo.getFileSize();
 				long fileSize = Long.decode(size);
 				if(DEBUG)
 				{
 					JDingDebug.printfD(TAG,"fileSize:" + fileSize);
+					JDingDebug.printfD(TAG, "gPacktNo:" + gPacktNo);
 				}
 				sendFileInfo.setFileSize(fileSize);
-				sendFileInfo.setSend(false);
+//				sendFileInfo.setSend(false);
 				SystemVar.TRANSPORT_FILE_LIST.add(sendFileInfo);
 				IpmMessage ipmMessage = new IpmMessage();
 				ipmMessage.setIp(dataPacket.getIp());
-				ipmMessage.setText(dataPacket.getSenderName() + "传来文件"
-						+ sendFileInfo.getFileName() + "等待接收");
-				ipmMessage.setName(dataPacket.getSenderName());
+				ipmMessage.setText(sendFileInfo.getFileName() + " 大小：" + sendFileInfo.getFileSize());
+				ipmMessage.setName(userVo.getUserName());
 				ipmMessage.setTime(Util.getTime());
+				ipmMessage.setMod(Util.IPM_MOD_RECV_FILE);
+				ipmMessage.setUniqueTime(time);
 				userVo.add(ipmMessage); // 将信息保存到单个user中
+				userVo.addRecvFile(sendFileInfo);
+//				unreadMessage(ipmMessage);
 				s = sendFileInfo;
 			}
 			recvfile(s);

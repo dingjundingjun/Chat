@@ -8,6 +8,7 @@ import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.text.format.Time;
 
+import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.content.SingleUser;
 
@@ -22,7 +23,16 @@ public class Util
 	public final static int HANDLER_ADD_USER = 0;
 	/**新消息到来*/
 	public final static int HANDLER_NEW_MSG = 1;
-	
+	/**接收文件*/
+	public final static int HANDLER_RECV_FILE = 2;
+	/**发送消息类型*/
+	public final static int IPM_MOD_SEND = 0;
+	/**接收消息类型*/
+	public final static int IPM_MOD_RECV = 1;
+	/**接收文件消息*/
+	public final static int IPM_MOD_SEND_FILE = 2;
+	/**发送文件消息*/
+	public final static int IPM_MOD_RECV_FILE = 3;
 	public static void sendFile(String ip,String path,long t)
 	{
 			File file = new File(path);
@@ -123,5 +133,23 @@ public static String getTime()
 		{
 			return null;
 		}
+	}
+	
+	/**
+	 * 组装一个消息
+	 * @param sender
+	 * @param msg
+	 * @param ip
+	 * @return
+	 */
+	public static IpmMessage newMessage(String sender,String msg,String ip)
+	{
+		IpmMessage ipmMessage = new IpmMessage();
+		ipmMessage.setIp(ip);
+		ipmMessage.setText(msg);
+		ipmMessage.setName(sender);
+		ipmMessage.setTime(getTime());
+		ipmMessage.setMod(Util.IPM_MOD_SEND);
+		return ipmMessage;
 	}
 }

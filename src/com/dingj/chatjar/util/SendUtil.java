@@ -24,7 +24,7 @@ import jding.debug.JDingDebug;
 public class SendUtil
 {
 	private static final String TAG = "NetUtil";
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 
 	/**
 	 * 判断端口是否被占用
@@ -80,7 +80,6 @@ public class SendUtil
 	public static void broadcastUdpPacket(DataPacket dataPacket)
 	{
 		sendUdpPacket(dataPacket, "255.255.255.255");
-     
 	}
 
 	public static void broadcastUdpPacketToEvery(DataPacket dataPacket, int ip)
@@ -91,4 +90,18 @@ public class SendUtil
 			sendUdpPacket(dataPacket, tempIp);
 		}
 	}
+	
+	/**
+	 * 发送普通聊天消息给指定的ip
+	 * @param msg
+	 * @param ip
+	 */
+	public static void sendMessage(String msg,String ip)
+	{
+		DataPacket tmpPacket = new DataPacket(IpMsgConstant.IPMSG_SENDMSG);
+		tmpPacket.setAdditional(msg);
+		tmpPacket.setIp(ip);
+		SendUtil.sendUdpPacket(tmpPacket, tmpPacket.getIp());
+	}
+	
 }

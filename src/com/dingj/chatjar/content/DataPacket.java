@@ -313,6 +313,7 @@ public class DataPacket
 						{
 							mFileInfoList = new ArrayList<FileInfo>();
 						}
+						
 						mFileInfoList.add(fileInfo);
 						break;
 					default:

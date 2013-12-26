@@ -17,6 +17,7 @@ import com.dingj.chatjar.ChatServiceController;
 import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.content.SingleUser;
+import com.dingj.chatjar.util.SendUtil;
 import com.dingj.chatjar.util.UserInfo;
 import com.dingj.chatjar.util.Util;
 
@@ -62,6 +63,14 @@ public class MessageActivity extends Activity implements OnClickListener
 		@Override
 		public void notifyRecvFile()
 		{
+			if(DEBUG)
+			{
+				JDingDebug.printfD(TAG, "notifyNewMessage");
+			}
+			Message msg = new Message();
+			msg.what = Util.HANDLER_RECV_FILE;
+			mNotifyHandler.sendMessage(msg);
+		
 		}
 
 		@Override
@@ -107,6 +116,11 @@ public class MessageActivity extends Activity implements OnClickListener
 					mMessageAdapter.notifyDataSetChanged();
 					break;
 				}
+				case Util.HANDLER_RECV_FILE:
+				{
+					updateList();
+					break;
+				}
 			}
 		}
 	}
@@ -141,7 +155,6 @@ public class MessageActivity extends Activity implements OnClickListener
 	 */
 	private void initData()
 	{
-		
 		mChatServiceController = ChatServiceController.getInstance(
 				getApplicationContext(), mNotifyObserver);
 		Intent intent = this.getIntent();
@@ -169,6 +182,7 @@ public class MessageActivity extends Activity implements OnClickListener
 			}
 			case R.id.clean_all:
 			{
+				
 				break;
 			}
 			case R.id.file:
@@ -177,6 +191,10 @@ public class MessageActivity extends Activity implements OnClickListener
 			}
 			case R.id.sendMsg:
 			{
+				String msg = mEditMessage.getText().toString();
+				String ip = mUserIp;
+				mEditMessage.setText("");
+				sendMsg(msg,ip);
 				break;
 			}
 			default:
@@ -184,6 +202,13 @@ public class MessageActivity extends Activity implements OnClickListener
 				break;
 			}
 		}
+	}
+	
+	public void sendMsg(String msg,String ip)
+	{
+		SendUtil.sendMessage(msg, ip);
+		mSingleUser.add(Util.newMessage(mSingleUser.getUserName(),msg,ip));
+		updateList();
 	}
 	
 	@Override
@@ -200,5 +225,9 @@ public class MessageActivity extends Activity implements OnClickListener
 		mChatServiceController.attach(mNotifyObserver);
 	}
 	
-	
+	private void updateList()
+	{
+		mMessageAdapter.setUser(mSingleUser);
+		mMessageAdapter.notifyDataSetChanged();
+	}
 }

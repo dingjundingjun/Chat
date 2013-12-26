@@ -13,16 +13,22 @@ import com.dingj.chatjar.util.SystemVar;
  */
 public class SingleUser 
 {
-	private String userName;            //用户名
-    private String alias;               //别名
-    private String groupName;           //工作组名
-    private String ip;                  //IP地址
-    private String hostName;            //主机名
+	/**用户名*/
+	private String userName;            
+	/**别名*/
+    private String alias;               
+    /**工作组名*/
+    private String groupName;           
+    /**IP地址*/
+    private String ip;                  
+    /**主机名*/
+    private String hostName;
     /**消息列表*/
     private List<IpmMessage> listIpmMessage = new ArrayList();
     /**保存全部的消息*/
     private List<IpmMessage> listAllMessage = new ArrayList();
-    private List<SendFileInfo> listRecv = new ArrayList();			//接收文件列表
+    /**接收文件列表*/
+    private List<SendFileInfo> listRecv = new ArrayList();			
     public String getGroupName() {
         return groupName;
     }
@@ -103,7 +109,7 @@ public class SingleUser
 			listIpmMessage.add(ipmMessage);
 		if(listAllMessage != null)
 			listAllMessage.add(ipmMessage);
-		SystemVar.db.insertMessage(ipmMessage.getText(), ipmMessage.getIp(),ipmMessage.getTime(),ipmMessage.getName());
+		SystemVar.db.insertMessage(ipmMessage);//ipmMessage.getText(), ipmMessage.getIp(),ipmMessage.getTime(),ipmMessage.getName(),ipmMessage.getMod());
 	}
 
 	public void addAllMessages(IpmMessage ipmMessage)
@@ -116,8 +122,10 @@ public class SingleUser
 	
 	public void addRecvFile(SendFileInfo sendfileInfo)
 	{
-		if(listRecv != null)
+		if(listRecv != null && !listRecv.contains(sendfileInfo))
+		{
 			listRecv.add(sendfileInfo);
+		}
 	}
 	
 	public void addSendFile(SendFileInfo sendFileInfo)
