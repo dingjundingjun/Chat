@@ -121,5 +121,6 @@ public class ChatService extends Service
 		}
 		new Thread(new RecvPacketThread()).start();//recive packet 
 		new Thread(new DataPacketHandler(this)).start();
+		new Thread(new SendFileHandler(mServerSocket)).start();//
 	}
 }

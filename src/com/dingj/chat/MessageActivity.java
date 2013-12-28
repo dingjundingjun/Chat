@@ -1,5 +1,7 @@
 package com.dingj.chat;
 
+import java.io.File;
+
 import jding.debug.JDingDebug;
 import android.app.Activity;
 import android.content.Intent;
@@ -14,10 +16,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dingj.chatjar.ChatServiceController;
+import com.dingj.chatjar.content.DataPacket;
 import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.Observer;
+import com.dingj.chatjar.content.SendFileInfo;
 import com.dingj.chatjar.content.SingleUser;
+import com.dingj.chatjar.util.IpMsgConstant;
 import com.dingj.chatjar.util.SendUtil;
+import com.dingj.chatjar.util.SystemVar;
 import com.dingj.chatjar.util.UserInfo;
 import com.dingj.chatjar.util.Util;
 
@@ -147,6 +153,7 @@ public class MessageActivity extends Activity implements OnClickListener
 		mBtnCleanAll.setOnClickListener(this);
 		mBtnSend.setOnClickListener(this);
 		mBtnBack.setOnClickListener(this);
+		mBtnSendFile.setOnClickListener(this);
 		initData();
 	}
 
@@ -185,8 +192,10 @@ public class MessageActivity extends Activity implements OnClickListener
 				
 				break;
 			}
-			case R.id.file:
+			case R.id.file:    //发送文件
 			{
+//				SendUtil.sendFile(mUserIp, "/mnt/sdcard/爸爸去哪儿.mp3", 0);
+				SendUtil.sendFiles(mUserIp,"/mnt/sdcard/哈哈",0);
 				break;
 			}
 			case R.id.sendMsg:
@@ -230,4 +239,8 @@ public class MessageActivity extends Activity implements OnClickListener
 		mMessageAdapter.setUser(mSingleUser);
 		mMessageAdapter.notifyDataSetChanged();
 	}
+	
+	
+	
+	
 }

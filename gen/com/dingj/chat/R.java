@@ -13,6 +13,7 @@ public final class R {
     public static final class color {
         public static final int char_default_color=0x7f040000;
         public static final int new_msg_tip_color=0x7f040001;
+        public static final int text_tip_color=0x7f040002;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -85,6 +86,7 @@ public final class R {
         public static final int hello_world=0x7f060002;
         public static final int name_cannot_null=0x7f06000c;
         public static final int progress_key=0x7f060010;
+        public static final int recv_finish=0x7f060012;
         public static final int recv_msg=0x7f060011;
         public static final int send_file=0x7f060005;
         public static final int send_msg=0x7f060006;

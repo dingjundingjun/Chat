@@ -6,9 +6,12 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
-import com.dingj.chatjar.content.ReciveFile.ProgressListener;
+import com.dingj.chat.R;
+import com.dingj.chatjar.content.SendFileInfo.ProgressListener;
 import com.dingj.chatjar.util.SystemVar;
 
 public class FileProgressBar extends ProgressBar implements ProgressListener
@@ -24,6 +27,10 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 	private final int HANDLER_UPDATE_UI = 0;
 	private UIHandler mUIHandler = new UIHandler();
 	private UIListener mUIListener;
+	/**显示提示*/
+	private TextView mTextTip;
+	private Context mContext;
+	private View mMainView;
 	public FileProgressBar(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
@@ -39,8 +46,9 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		return mod;
 	}
 
-	public void setSendFile(SendFileInfo sendFileInfo)
+	public void setSendFile(Context c,SendFileInfo sendFileInfo)
 	{
+		this.mContext = c;
 		this.mSendFileInfo = sendFileInfo;
 	}
 	
@@ -51,9 +59,18 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		{
 			file.mkdirs();
 		}
-		ReciveFile reciveFile = new ReciveFile();
-		reciveFile.setListener(this);
-    	reciveFile.recv(SystemVar.DEFAULT_FILE_PATH + mSendFileInfo.getFileName(),mSendFileInfo);
+		if(mSendFileInfo.getTransState() == SendFileInfo.TRANSSTATE_TRANSLATING)
+		{
+			showTransporting();
+			mSendFileInfo.setListener(this);
+		}
+		else if(mSendFileInfo.getTransState() == SendFileInfo.TRANSSTATE_NOT_START)
+		{
+			mSendFileInfo.setListener(this);
+//			ReciveFile reciveFile = new ReciveFile();
+//			reciveFile.setListener(this);
+			mSendFileInfo.recv(SystemVar.DEFAULT_FILE_PATH + mSendFileInfo.getFileName(),mSendFileInfo);
+		}
 	}
 
 	@Override
@@ -80,12 +97,26 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 					invalidate();
 					if(msg.arg1 == 100)
 					{
-						mUIListener.notifyFinish();
+						showTransportFinish();
 					}
 					break;
 				}
 			}
 		}
+	}
+	
+	private void showTransportFinish()
+	{
+		mTextTip.setVisibility(View.VISIBLE);
+		mTextTip.setText(mContext.getText(R.string.recv_finish));
+		mMainView.setVisibility(View.GONE);
+	}
+	
+	private void showTransporting()
+	{
+		mTextTip.setVisibility(View.GONE);
+		mTextTip.setText(mContext.getText(R.string.recv_finish));
+		mMainView.setVisibility(View.VISIBLE);
 	}
 	
 	public void setListener(UIListener ul)
@@ -99,4 +130,9 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		public void notifyFinish();
 	}
 	
+	public void setTipandMainView(TextView tip,View mainView)
+	{
+		mMainView = mainView;
+		mTextTip = tip;
+	}
 }

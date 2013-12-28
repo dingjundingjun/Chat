@@ -103,6 +103,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 			ipmMessage.setName(mUserVo.getUserName());
 			ipmMessage.setTime(Util.getTime());
 			ipmMessage.setMod(Util.IPM_MOD_RECV);
+			ipmMessage.setUniqueTime(System.currentTimeMillis());
 			mUserVo.add(ipmMessage);
 			unreadMessage(ipmMessage);
 			if(DEBUG)
@@ -176,6 +177,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 				sendFileInfo.setFileName(fileinfo.getFileName());
 				sendFileInfo.setFileNo(fileinfo.getFileNo());
 				sendFileInfo.setProperty(fileinfo.getFileProperty());
+				sendFileInfo.setTransState(SendFileInfo.TRANSSTATE_NOT_START);
 				long time = System.currentTimeMillis();
 				sendFileInfo.setUniqueTime(time);
 				String size = "0x" + fileinfo.getFileSize();
@@ -195,6 +197,7 @@ public class DataPacketHandler extends DataPacketAnalytical
 				ipmMessage.setTime(Util.getTime());
 				ipmMessage.setMod(Util.IPM_MOD_RECV_FILE);
 				ipmMessage.setUniqueTime(time);
+				ipmMessage.setFileTransportState(SendFileInfo.TRANSSTATE_NOT_START);
 				userVo.add(ipmMessage); // 将信息保存到单个user中
 				userVo.addRecvFile(sendFileInfo);
 //				unreadMessage(ipmMessage);
@@ -222,14 +225,6 @@ public class DataPacketHandler extends DataPacketAnalytical
 				database.insertAccount(usertemp.getIp(), usertemp.getUserName()); // 写入数据库
 			}
 		}
-//		SingleUser user = SingleUser.changeDataPacket(dataPacket);
-//		mUserInfo.addUsers(user);
-//		DataPacket dp = new DataPacket(
-//				IpMsgConstant.IPMSG_ANSENTRY);
-//		dp.setAdditional(SystemVar.USER_NAME);
-//		dp.setIp(NetUtil.getLocalHostIp());
-////		ansentry(dataPacket);
-//		NetUtil.sendUdpPacket(dp, dataPacket.getIp());
 	}
 
 	public void removeUser(SingleUser user)

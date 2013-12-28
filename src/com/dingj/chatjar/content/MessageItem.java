@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
@@ -31,12 +32,13 @@ public class MessageItem implements UIListener
 	private LinearLayout mProgressControl;
 	private TextView mTextTip;
 	private SendFileInfo mSendFileInfo;
-	public void init(Context c,List<IpmMessage> messageList,int position,SingleUser singleUser)
+	public void init(Context c,List<IpmMessage> messageList,int position,SingleUser singleUser,View mainView)
 	{
+		mMainView = mainView;
 		mContext = c;
 		mMessageList = messageList;
 		mSingleUser = singleUser;
-		mMainView = LinearLayout.inflate(mContext, R.layout.msg_item_layout, null);
+		
 		LinearLayout msgLayout = (LinearLayout) mMainView.findViewById(R.id.msg_layout);
 		TextView textMsg = (TextView) mMainView.findViewById(R.id.msg);
 		TextView textTime = (TextView) mMainView.findViewById(R.id.time);
@@ -82,12 +84,15 @@ public class MessageItem implements UIListener
 				}
 				if(mSendFileInfo != null)
 				{
-					int progress = (int) (mSendFileInfo.getSendSize()*100/mSendFileInfo.getFileSize());
-					mFileProgressBar.setProgress(progress);
-					if(progress == 100)
-					{
-						notifyFinish();
-					}
+//					if(!mSendFileInfo.isDir)
+//					{
+//						int progress = (int) (mSendFileInfo.getSendSize()*100/mSendFileInfo.getFileSize());
+//						mFileProgressBar.setProgress(progress);
+//						if(progress == 100)
+//						{
+//							notifyFinish();
+//						}
+//					}
 				}
 				mRectBtn.setOnClickListener(new OnClickListener()
 				{
@@ -100,7 +105,7 @@ public class MessageItem implements UIListener
 							if(mSendFileInfo != null)
 							{
 								mFileProgressBar.setMod(FileProgressBar.FILE_MOD_RECV);
-								mFileProgressBar.setSendFile(mSendFileInfo);
+								mFileProgressBar.setSendFile(mContext,mSendFileInfo);
 								mFileProgressBar.setListener(MessageItem.this);
 								mFileProgressBar.recvFile();
 							}
@@ -142,6 +147,7 @@ public class MessageItem implements UIListener
 		mProgressLayout.setVisibility(View.VISIBLE);
 		mProgressControl.setVisibility(View.GONE);
 		mTextTip.setText("完成传输");
+		Toast.makeText(mContext, "文件传输完成", Toast.LENGTH_SHORT).show();
 		
 	}
 }

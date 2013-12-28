@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="char_default_color">#ff000000</color>
+    <color name="new_msg_tip_color">#ffff0000</color>
+    <color name="text_tip_color">#ffff0000</color>
+</resources>

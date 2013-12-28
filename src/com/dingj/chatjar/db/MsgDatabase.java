@@ -107,6 +107,11 @@ public class MsgDatabase
 		return SystemVar.USER_NAME;
 	}
 	
+	/**
+	 * 插入一个用户
+	 * @param ip
+	 * @param name
+	 */
 	public void insertAccount(String ip, String name)
 	{
 		String queryUserNameSql = "select * from "
@@ -167,6 +172,7 @@ public class MsgDatabase
 		contentValues.put(CCmsgDatabaseHelper.MESSAGE_KEY, ipmMessage.getIp());
 		contentValues.put(CCmsgDatabaseHelper.MESSAGE_MOD, ipmMessage.getMod());
 		contentValues.put(CCmsgDatabaseHelper.MESSAGE_UNIQUE,ipmMessage.getUniqueTime());
+		contentValues.put(CCmsgDatabaseHelper.FILE_TRANSPORT_STATE, ipmMessage.getFileTransportState());
 		try
 		{
 			db.insert(CCmsgDatabaseHelper.MESSAGE_TABLE_NAME, null,
@@ -177,6 +183,10 @@ public class MsgDatabase
 		}
 	}
 
+	/**
+	 * 删除用户
+	 * @param ip
+	 */
 	public void deleteAccount(String ip)
 	{
 		try
@@ -190,6 +200,10 @@ public class MsgDatabase
 		}
 	}
 
+	/**
+	 * 删除消息
+	 * @param key
+	 */
 	public void deleteMessages(String key)
 	{
 		try
@@ -211,6 +225,10 @@ public class MsgDatabase
 		}
 	}
 
+	/**
+	 * 获取用户的消息
+	 * @param user
+	 */
 	public void getMessages(SingleUser user)
 	{
 		user.cleanAllList();
@@ -264,5 +282,50 @@ public class MsgDatabase
 		}
 	}
 	
+	/**
+	 * 设置文件传输状态 
+	 * @param unique
+	 */
+	public void setFileTransportState(long unique,int state)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(CCmsgDatabaseHelper.FILE_TRANSPORT_STATE, state);
+		try
+		{
+			String sql = CCmsgDatabaseHelper.MESSAGE_UNIQUE + "=" + unique;
+			db.update(CCmsgDatabaseHelper.MESSAGE_TABLE_NAME, contentValues, sql, null);
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 	
+	/**
+	 * 获取文件传输状态
+	 * @param unique
+	 * @return
+	 */
+	public int getFileTransportState(long unique)
+	{
+		String queryUserNameSql = "select * from "
+				+ CCmsgDatabaseHelper.MESSAGE_TABLE_NAME + "where" + CCmsgDatabaseHelper.MESSAGE_UNIQUE + "=" + unique;
+		Cursor cursor = null;
+		try
+		{
+			cursor = db.rawQuery(queryUserNameSql, null);
+			if(cursor != null && cursor.moveToFirst())
+			{
+				return cursor.getInt(cursor.getColumnIndex(CCmsgDatabaseHelper.MESSAGE_UNIQUE));
+			}
+		}
+		catch(Exception e)
+		{
+			
+		}
+		if(cursor != null)
+		{
+			cursor.close();
+		}
+		return -1;
+	}
 }

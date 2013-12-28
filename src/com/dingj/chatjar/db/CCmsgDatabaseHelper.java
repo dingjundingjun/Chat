@@ -23,6 +23,7 @@ public class CCmsgDatabaseHelper extends SQLiteOpenHelper
 	public final static String MESSAGE_TIME = "mtime";
 	public final static String MESSAGE_FROM = "mfrom";
 	public final static String USER_NAME = "name";
+	public final static String FILE_TRANSPORT_STATE = "transport_state";
 	private final static String createAccountTabel = "CREATE TABLE "
 			+ ACCOUNT_TABLE_NAME + "(" + ACCOUNT_ID
 			+ " INTEGER primary key autoincrement," + ACCOUNT_IP + " text,"
@@ -31,7 +32,7 @@ public class CCmsgDatabaseHelper extends SQLiteOpenHelper
 			+ MESSAGE_TABLE_NAME + "(" + MESSAGE_ID
 			+ " INTEGER primary key autoincrement," + MESSAGE_CONTENT
 			+ " text," + MESSAGE_TIME + " text," + MESSAGE_FROM + " text,"
-			+ MESSAGE_MOD + " INTEGER," + MESSAGE_UNIQUE + " Long,"
+			+ MESSAGE_MOD + " INTEGER," + MESSAGE_UNIQUE + " Long," + FILE_TRANSPORT_STATE + " INTEGER,"
 			+ MESSAGE_KEY + " text)";
 	private final static String createUserTabel = "CREATE TABLE " + USER_TABEL + "(" + ACCOUNT_ID + " INTEGER primary key autoincrement," + USER_NAME + " text)";
 	private Context mContext;

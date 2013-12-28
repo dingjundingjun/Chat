@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.dingj.chatjar.content.FileProgressBar;
 import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.MessageItem;
+import com.dingj.chatjar.content.SendFileInfo;
 import com.dingj.chatjar.content.SingleUser;
 import com.dingj.chatjar.util.SystemVar;
 import com.dingj.chatjar.util.Util;
@@ -54,48 +55,92 @@ public class MessageAdapter extends BaseAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		MessageItem messageItem = new MessageItem();
-//		if(convertView == null)
-//		{
-//			convertView = LinearLayout.inflate(mContext, R.layout.msg_item_layout, null);
-//		}
-//		LinearLayout msgLayout = (LinearLayout) convertView.findViewById(R.id.msg_layout);
-//		TextView textMsg = (TextView) convertView.findViewById(R.id.msg);
-//		TextView textTime = (TextView) convertView.findViewById(R.id.time);
-//		IpmMessage temMsg = mMessageList.get(position);
-//		textMsg.setText(temMsg.getText());
-//		textTime.setText(temMsg.getTime());
-//		LinearLayout.LayoutParams param = (LayoutParams) msgLayout.getLayoutParams();
-//		LinearLayout progressLayout = (LinearLayout) convertView.findViewById(R.id.progress);
-//		switch(temMsg.getMod())
-//		{
-//			case Util.IPM_MOD_RECV:
-//			{
-//				param.gravity = Gravity.LEFT;
-//				msgLayout.setBackgroundResource(R.drawable.msg_item_from_bg);
-//				progressLayout.setVisibility(View.GONE);
-//				break;
-//			}
-//			case Util.IPM_MOD_SEND:
-//			{
-//				msgLayout.setBackgroundResource(R.drawable.msg_item_to_bg);
-//				param.gravity = Gravity.RIGHT;
-//				progressLayout.setVisibility(View.GONE);
-//				break;
-//			}
-//			case Util.IPM_MOD_RECV_FILE:
-//			{
-//				Button mRectBtn = (Button)convertView.findViewById(R.id.progress_btn);
-//				FileProgressBar fileProgressBar = (FileProgressBar)convertView.findViewById(R.id.progressBar);
-//				mRectBtn.setTag(R.string.time_key,temMsg.getUniqueTime());
-//				mRectBtn.setTag(R.string.progress_key,fileProgressBar);
-//				mRectBtn.setText(R.string.recv_msg);
-//				mRectBtn.setTag(R.string.recv_msg,"recv");
-//				mRectBtn.setOnClickListener(new OnClickListener()
-//				{
-//					@Override
-//					public void onClick(View v)
-//					{
+//		MessageItem messageItem = new MessageItem();
+		if(convertView == null)
+		{
+			convertView = LinearLayout.inflate(mContext, R.layout.msg_item_layout, null);
+			
+		}
+		LinearLayout msgLayout = (LinearLayout) convertView.findViewById(R.id.msg_layout);
+		TextView textMsg = (TextView) convertView.findViewById(R.id.msg);
+		TextView textTime = (TextView) convertView.findViewById(R.id.time);
+		IpmMessage temMsg = mMessageList.get(position);
+		textMsg.setText(temMsg.getText());
+		textTime.setText(temMsg.getTime());
+		LinearLayout.LayoutParams param = (LayoutParams) msgLayout.getLayoutParams();
+		LinearLayout progressLayout = (LinearLayout) convertView.findViewById(R.id.progress_control);
+		switch(temMsg.getMod())
+		{
+			case Util.IPM_MOD_RECV:
+			{
+				param.gravity = Gravity.LEFT;
+				msgLayout.setBackgroundResource(R.drawable.msg_item_from_bg);
+				progressLayout.setVisibility(View.GONE);
+				break;
+			}
+			case Util.IPM_MOD_SEND:
+			{
+				msgLayout.setBackgroundResource(R.drawable.msg_item_to_bg);
+				param.gravity = Gravity.RIGHT;
+				progressLayout.setVisibility(View.GONE);
+				break;
+			}
+			case Util.IPM_MOD_RECV_FILE:
+			{
+				Button mRecvBtn = (Button)convertView.findViewById(R.id.progress_btn);
+				TextView mTextIip = (TextView)convertView.findViewById(R.id.tip);
+				FileProgressBar fileProgressBar = (FileProgressBar)convertView.findViewById(R.id.progressBar);
+				mRecvBtn.setTag(R.string.time_key,temMsg.getUniqueTime());
+				mRecvBtn.setTag(R.string.progress_key,fileProgressBar);
+				fileProgressBar.setTipandMainView(mTextIip, progressLayout);
+				SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser, temMsg.getUniqueTime());
+				if(sendFileInfo == null)
+				{
+					break;
+				}
+				switch(sendFileInfo.getTransState())
+				{
+					case SendFileInfo.TRANSSTATE_NOT_START:
+					{
+						mRecvBtn.setText(R.string.recv_msg);
+						break;
+					}
+					case SendFileInfo.TRANSSTATE_TRANSLATING:
+					{
+						fileProgressBar.setSendFile(mContext,sendFileInfo);
+						fileProgressBar.recvFile();
+						mRecvBtn.setText(R.string.btn_cancel);
+						break;
+					}
+					case SendFileInfo.TRANSSTATE_ERROR:
+					{
+						
+						break;
+					}
+					case SendFileInfo.TRANSSTATE_FINISH:
+					{
+						break;
+					}
+				}
+				mRecvBtn.setOnClickListener(new OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						if(DEBUG)
+						{
+							JDingDebug.printfD(TAG, "接收文件咯");
+						}
+						if(((Button)v).getText().toString().equals(mContext.getString(R.string.recv_msg)))    //点击就接收
+						{
+							
+							SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser,  (Long)v.getTag(R.string.time_key));
+							FileProgressBar tempBar = (FileProgressBar) v.getTag(R.string.progress_key);
+							tempBar.setMod(FileProgressBar.FILE_MOD_RECV);
+							tempBar.setSendFile(mContext,sendFileInfo);
+							tempBar.recvFile();
+						}
+						
 //						if(v.getTag(R.string.recv_msg).equals("recv"))
 //						{
 //							((Button)v).setText(R.string.btn_cancel);
@@ -111,10 +156,7 @@ public class MessageAdapter extends BaseAdapter
 //									{
 //										JDingDebug.printfD(TAG, "开始接收文件咯:" + mSingleUser.getRecvList().get(i).getFileName());
 //									}
-//									FileProgressBar tempBar = (FileProgressBar) v.getTag(R.string.progress_key);
-//									tempBar.setMod(FileProgressBar.FILE_MOD_RECV);
-//									tempBar.setSendFile(mSingleUser.getRecvList().get(i));
-//									tempBar.recvFile();
+//									
 //									break;
 //								}
 //							}
@@ -126,26 +168,26 @@ public class MessageAdapter extends BaseAdapter
 //								JDingDebug.printfD(TAG, "取消传输");
 //							}
 //						}
-//						
-//					}
-//				});
-//				progressLayout.setVisibility(View.VISIBLE);
-//				break;
-//			}
-//			case Util.IPM_MOD_SEND_FILE:
-//			{
-//				progressLayout.setVisibility(View.VISIBLE);
-//				break;
-//			}
-//		}
-//		if(DEBUG)
-//		{
-//			JDingDebug.printfD(TAG, "msg=" + mMessageList.get(position).getText());
-//			JDingDebug.printfD(TAG, "time=" + mMessageList.get(position).getTime());
-//		}
+						
+					}
+				});
+				progressLayout.setVisibility(View.VISIBLE);
+				break;
+			}
+			case Util.IPM_MOD_SEND_FILE:
+			{
+				progressLayout.setVisibility(View.VISIBLE);
+				break;
+			}
+		}
+		if(DEBUG)
+		{
+			JDingDebug.printfD(TAG, "msg=" + mMessageList.get(position).getText());
+			JDingDebug.printfD(TAG, "time=" + mMessageList.get(position).getTime());
+		}
 		
-		messageItem.init(mContext, mMessageList, position, mSingleUser);
-		return messageItem.getMainView();
+//		messageItem.init(mContext, mMessageList, position, mSingleUser);
+		return convertView;
 	}
 	
 	public void setUser(SingleUser su)

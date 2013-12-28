@@ -37,7 +37,9 @@ public class MainActivity extends Activity implements OnClickListener
 	private final boolean DEBUG = true;
 	private final String TAG = "MainActivity";
 	private NotifyHandler mNotifyHandler = new NotifyHandler();
+	/**刷新按钮*/
 	private Button mBtnFresh;
+	/**设置按钮*/
 	private Button mBtnSetting;
 	/**监听类*/
 	private NotifyObserver mNotifyObserver = new NotifyObserver();

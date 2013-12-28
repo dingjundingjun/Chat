@@ -4,12 +4,17 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import jding.debug.JDingDebug;
+
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.text.format.Time;
 
+import com.dingj.chat.R;
+import com.dingj.chatjar.content.FileProgressBar;
 import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.Observer;
+import com.dingj.chatjar.content.SendFileInfo;
 import com.dingj.chatjar.content.SingleUser;
 
 /**
@@ -151,5 +156,25 @@ public static String getTime()
 		ipmMessage.setTime(getTime());
 		ipmMessage.setMod(Util.IPM_MOD_SEND);
 		return ipmMessage;
+	}
+	
+	/**
+	 * 从指定账户中查找出对应文件标识的文件类
+	 * @param singleUser
+	 * @param unique
+	 * @return
+	 */
+	public static SendFileInfo getSendFileInfoFromUnique(SingleUser singleUser,long unique)
+	{
+		int length = singleUser.getRecvList().size();
+		for(int i = 0;i < length; i++)
+		{
+			long time = singleUser.getRecvList().get(i).getUniqueTime();
+			if(time == unique)
+			{
+				return singleUser.getRecvList().get(i);
+			}
+		}
+		return null;
 	}
 }

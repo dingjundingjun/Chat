@@ -17,6 +17,11 @@ import com.dingj.chatjar.util.SystemVar;
 
 import jding.debug.JDingDebug;
 
+/**
+ * 接收文件类
+ * @author dingj
+ *
+ */
 public class ReciveFile
 {
 	private boolean isStop = false;
@@ -43,6 +48,11 @@ public class ReciveFile
 		}
 	}
 
+	/**
+	 * 接收文件线程
+	 * @author dingj
+	 *
+	 */
 	public class ReciFileThread extends Thread
 	{
 		private Socket socket;

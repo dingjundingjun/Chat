@@ -49,10 +49,12 @@
 			android:max="100"
             />
     </LinearLayout>
-    <TextView 
+     <TextView 
         android:id="@+id/tip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textColor="@color/text_tip_color"
         />
     </LinearLayout>
 </LinearLayout>
