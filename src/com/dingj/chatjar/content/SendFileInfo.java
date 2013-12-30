@@ -21,6 +21,8 @@ import com.dingj.chatjar.util.SystemVar;
 
 public class SendFileInfo
 {
+	private final boolean DEBUG = true;
+	private final String TAG = "SendFileInfo";
 	/**文件序号*/
 	private String fileNo;
 	/**文件名*/
@@ -55,6 +57,8 @@ public class SendFileInfo
 	public static final int TRANSSTATE_ERROR = 2;
 	/**传输完成*/
 	public static final int TRANSSTATE_FINISH = 3;
+	/**传输进度*/
+	public int mProgress = 0;
 	private ProgressListener mProgressListener;
 	public SendFileInfo() 
 	{
@@ -191,6 +195,11 @@ public class SendFileInfo
 		}
 	}
 	
+	public int getProgress()
+	{
+		return mProgress;
+	}
+	
 	/**
 	 * 接收文件线程
 	 * @author dingj
@@ -280,7 +289,12 @@ public class SendFileInfo
 						int progress = (int) (allow*100/fileSize);
 						if(mProgressListener != null)
 						{
+							mProgress = progress;
 							mProgressListener.setRecvProgress(progress);
+							if(DEBUG)
+							{
+								JDingDebug.printfD(TAG, "progress:" + progress + " fileSize:" + getFileSize() + " sendSize:" + getSendSize());
+							}
 						}
 						setSendSize(rLength);
 						if (isStop == true)
@@ -288,7 +302,7 @@ public class SendFileInfo
 							// IpmMessage ipmMessage = new IpmMessage();
 							// ipmMessage.setIp(mUser.getIp());
 							// ipmMessage.setText("文件终止传输");
-							// ipmMessage.setName(mUser.getUserName());
+							// ipmMmProgressessage.setName(mUser.getUserName());
 							// ipmMessage.setTime(SystemVar.getTime());
 							// mUser.add(ipmMessage);
 							// SystemVar.sendStopRecvFile(hex+":",mSendFileInfo.getIp());
@@ -378,7 +392,7 @@ public class SendFileInfo
 				// {
 				// return true;
 				// }
-				JDingDebug.printfSystem("在这里挂:" + stack.size());
+				JDingDebug.printfSystem("stack.size:" + stack.size());
 				int rlength = inputStream.read(bufHeadLength);
 				JDingDebug.printfSystem("rlength:" + rlength);
 				String bufHeadStr = new String(bufHeadLength);
@@ -408,7 +422,8 @@ public class SendFileInfo
 					return true;
 				}
 				String headStr = bufHeadStr + new String(headByte, "GBK");
-				JDingDebug.printfSystem("headStr:" + headStr);
+				JDingDebug.printfSystem("headStr:" + headStr);    //读出消息
+				//开始解析消息
 				StringTokenizer tokenizer = new StringTokenizer(headStr, ":",
 						false);
 				int i = 0;
@@ -456,7 +471,7 @@ public class SendFileInfo
 				// //isReturn = true;
 				// }
 				// }
-				if (tempFileDirInfo.getProperty().equals("3"))
+				if (tempFileDirInfo.getProperty().equals("3"))    //跳出目录
 				{
 					stack.pop();
 					if (stack.size() == 1)
@@ -470,11 +485,20 @@ public class SendFileInfo
 				} else if (tempFileDirInfo.getProperty().equals("2"))
 				{
 					stack.push(tempFileDirInfo.getName());// 把文件夹名入栈
+					if(tempFileDirInfo.getSize() > 0)
+					{
+						//说明是总文件夹的大小
+						if(DEBUG)
+						{
+							JDingDebug.printfD(TAG, "this file allsize is:" + tempFileDirInfo.getSize());
+						}
+						setFileSize(tempFileDirInfo.getSize());
+					}
 				}
 
 				StringBuffer sb = new StringBuffer();
 				ListIterator<String> ite = stack.listIterator();
-				while (ite.hasNext())
+				while (ite.hasNext())    //这里组装出对应的接收目录
 				{
 					String str = ite.next();
 					sb.append(str);
@@ -485,7 +509,6 @@ public class SendFileInfo
 				if (tempFileDirInfo.getProperty().equals("2"))
 				{
 					File file = new File(sb.toString());// 创建文件夹
-
 					if (!file.exists())
 					{
 						file.mkdirs();
@@ -501,17 +524,27 @@ public class SendFileInfo
 					}
 					outputStream = new FileOutputStream(file);
 					byte[] buf = new byte[800];
-					int length = tempFileDirInfo.getSize();
+					long length = tempFileDirInfo.getSize();
 					rlength = 0;
-					int bufLength = length > buf.length ? buf.length : length;
+					int bufLength = (int) (length > buf.length ? buf.length : length);
 					while (bufLength != 0
 							&& (rlength = inputStream.read(buf, 0, bufLength)) != -1)
 					{
-
 						length -= rlength;
 						tempSize += rlength;
-						bufLength = length > buf.length ? buf.length : length;
+						bufLength = (int) (length > buf.length ? buf.length : length);
 						setSendSize(rlength);
+						fileSize = getFileSize();
+						int progress = (int) (sendSize*100/fileSize);
+						if(mProgressListener != null)
+						{
+							mProgress = progress;
+							mProgressListener.setRecvProgress(progress);
+							if(DEBUG)
+							{
+								JDingDebug.printfD(TAG, "progress:" + progress + " fileSize:" + getFileSize() + " sendSize:" + getSendSize());
+							}
+						}
 						outputStream.write(buf, 0, rlength);
 						outputStream.flush();
 						// JDingDebug.printfSystem("buflength:" + bufLength +

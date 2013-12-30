@@ -68,6 +68,7 @@ public class MessageAdapter extends BaseAdapter
 		textTime.setText(temMsg.getTime());
 		LinearLayout.LayoutParams param = (LayoutParams) msgLayout.getLayoutParams();
 		LinearLayout progressLayout = (LinearLayout) convertView.findViewById(R.id.progress_control);
+		TextView mTextIip = (TextView)convertView.findViewById(R.id.tip);
 		switch(temMsg.getMod())
 		{
 			case Util.IPM_MOD_RECV:
@@ -75,6 +76,7 @@ public class MessageAdapter extends BaseAdapter
 				param.gravity = Gravity.LEFT;
 				msgLayout.setBackgroundResource(R.drawable.msg_item_from_bg);
 				progressLayout.setVisibility(View.GONE);
+				mTextIip.setVisibility(View.GONE);
 				break;
 			}
 			case Util.IPM_MOD_SEND:
@@ -82,12 +84,15 @@ public class MessageAdapter extends BaseAdapter
 				msgLayout.setBackgroundResource(R.drawable.msg_item_to_bg);
 				param.gravity = Gravity.RIGHT;
 				progressLayout.setVisibility(View.GONE);
+				mTextIip.setVisibility(View.GONE);
 				break;
 			}
 			case Util.IPM_MOD_RECV_FILE:
 			{
+				param.gravity = Gravity.LEFT;
+				msgLayout.setBackgroundResource(R.drawable.msg_item_from_bg);
 				Button mRecvBtn = (Button)convertView.findViewById(R.id.progress_btn);
-				TextView mTextIip = (TextView)convertView.findViewById(R.id.tip);
+				
 				FileProgressBar fileProgressBar = (FileProgressBar)convertView.findViewById(R.id.progressBar);
 				mRecvBtn.setTag(R.string.time_key,temMsg.getUniqueTime());
 				mRecvBtn.setTag(R.string.progress_key,fileProgressBar);
@@ -158,7 +163,7 @@ public class MessageAdapter extends BaseAdapter
 						}
 						if(((Button)v).getText().toString().equals(mContext.getString(R.string.recv_msg)))    //点击就接收
 						{
-							
+							((Button)v).setText(mContext.getString(R.string.btn_cancel));
 							SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser,  (Long)v.getTag(R.string.time_key));
 							FileProgressBar tempBar = (FileProgressBar) v.getTag(R.string.progress_key);
 							tempBar.setMod(FileProgressBar.FILE_MOD_RECV);
@@ -172,6 +177,8 @@ public class MessageAdapter extends BaseAdapter
 			}
 			case Util.IPM_MOD_SEND_FILE:
 			{
+				msgLayout.setBackgroundResource(R.drawable.msg_item_to_bg);
+				param.gravity = Gravity.RIGHT;
 				progressLayout.setVisibility(View.VISIBLE);
 				break;
 			}
@@ -180,6 +187,8 @@ public class MessageAdapter extends BaseAdapter
 		{
 			JDingDebug.printfD(TAG, "msg=" + mMessageList.get(position).getText());
 			JDingDebug.printfD(TAG, "time=" + mMessageList.get(position).getTime());
+			JDingDebug.printfD(TAG, "mod=" + temMsg.getMod());
+			
 		}
 		
 //		messageItem.init(mContext, mMessageList, position, mSingleUser);

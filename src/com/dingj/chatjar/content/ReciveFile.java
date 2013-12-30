@@ -349,7 +349,7 @@ public class ReciveFile
 					}
 					outputStream = new FileOutputStream(file);
 					byte[] buf = new byte[800];
-					int length = tempFileDirInfo.getSize();
+					int length = (int) tempFileDirInfo.getSize();
 					rlength = 0;
 					int bufLength = length > buf.length ? buf.length : length;
 					while (bufLength != 0

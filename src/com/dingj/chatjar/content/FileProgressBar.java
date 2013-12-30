@@ -67,13 +67,13 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		if(mSendFileInfo.getTransState() == SendFileInfo.TRANSSTATE_TRANSLATING)
 		{
 			showTransporting();
+			setProgress(mSendFileInfo.getProgress());
 			mSendFileInfo.setListener(this);
 		}
 		else if(mSendFileInfo.getTransState() == SendFileInfo.TRANSSTATE_NOT_START)
 		{
 			mSendFileInfo.setListener(this);
-//			ReciveFile reciveFile = new ReciveFile();
-//			reciveFile.setListener(this);
+			showTransporting();
 			mSendFileInfo.recv(SystemVar.DEFAULT_FILE_PATH + mSendFileInfo.getFileName(),mSendFileInfo);
 		}
 	}
@@ -120,6 +120,9 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		mMainView.setVisibility(View.GONE);
 	}
 	
+	/**
+	 * 显示正在文件传输
+	 */
 	public void showTransporting()
 	{
 		mTextTip.setVisibility(View.VISIBLE);
