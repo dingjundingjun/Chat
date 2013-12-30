@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.dingj.chat.R;
 import com.dingj.chatjar.content.SendFileInfo.ProgressListener;
 import com.dingj.chatjar.util.SystemVar;
+import com.dingj.chatjar.util.UserInfo;
 
 public class FileProgressBar extends ProgressBar implements ProgressListener
 {
@@ -46,10 +47,14 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		return mod;
 	}
 
-	public void setSendFile(Context c,SendFileInfo sendFileInfo)
+	public void setSendFile(SendFileInfo sendFileInfo)
 	{
-		this.mContext = c;
 		this.mSendFileInfo = sendFileInfo;
+	}
+	
+	public void setContext(Context c)
+	{
+		this.mContext =c;
 	}
 	
 	public void recvFile()
@@ -105,17 +110,29 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		}
 	}
 	
-	private void showTransportFinish()
+	/**
+	 * 显示传输完成的界面
+	 */
+	public void showTransportFinish()
 	{
 		mTextTip.setVisibility(View.VISIBLE);
 		mTextTip.setText(mContext.getText(R.string.recv_finish));
 		mMainView.setVisibility(View.GONE);
 	}
 	
-	private void showTransporting()
+	public void showTransporting()
+	{
+		mTextTip.setVisibility(View.VISIBLE);
+		mTextTip.setText(mContext.getText(R.string.recv_transporting));
+		mMainView.setVisibility(View.VISIBLE);
+	}
+	
+	/**
+	 * 文件还没开始传输
+	 */
+	public void showTransportNotStart()
 	{
 		mTextTip.setVisibility(View.GONE);
-		mTextTip.setText(mContext.getText(R.string.recv_finish));
 		mMainView.setVisibility(View.VISIBLE);
 	}
 	
@@ -134,5 +151,12 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 	{
 		mMainView = mainView;
 		mTextTip = tip;
+	}
+	
+	public void showTransportError()
+	{
+		mTextTip.setVisibility(View.VISIBLE);
+		mTextTip.setText(mContext.getText(R.string.recv_error));
+		mMainView.setVisibility(View.GONE);
 	}
 }

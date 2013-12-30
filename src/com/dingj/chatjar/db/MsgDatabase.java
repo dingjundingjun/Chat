@@ -307,15 +307,20 @@ public class MsgDatabase
 	 */
 	public int getFileTransportState(long unique)
 	{
+		int state = -1;
 		String queryUserNameSql = "select * from "
-				+ CCmsgDatabaseHelper.MESSAGE_TABLE_NAME + "where" + CCmsgDatabaseHelper.MESSAGE_UNIQUE + "=" + unique;
+				+ CCmsgDatabaseHelper.MESSAGE_TABLE_NAME + " where " + CCmsgDatabaseHelper.MESSAGE_UNIQUE + "=" + unique;
+		if(DEBUG)
+		{
+			JDingDebug.printfD(TAG, "getFileTransportState:" + queryUserNameSql);
+		}
 		Cursor cursor = null;
 		try
 		{
 			cursor = db.rawQuery(queryUserNameSql, null);
 			if(cursor != null && cursor.moveToFirst())
 			{
-				return cursor.getInt(cursor.getColumnIndex(CCmsgDatabaseHelper.MESSAGE_UNIQUE));
+				state = cursor.getInt(cursor.getColumnIndex(CCmsgDatabaseHelper.FILE_TRANSPORT_STATE));
 			}
 		}
 		catch(Exception e)
@@ -326,6 +331,21 @@ public class MsgDatabase
 		{
 			cursor.close();
 		}
-		return -1;
+		return state;
+	}
+	
+	/**
+	 * 删除指定用户的全部聊天记录
+	 * @param singleUser
+	 */
+	public void clearSingleUserMessage(SingleUser singleUser)
+	{
+		singleUser.cleanAllList();
+		try
+		{
+			db.delete(CCmsgDatabaseHelper.MESSAGE_TABLE_NAME, "messagekey=" + "'" + singleUser.getIp() + "'", null);
+		} 
+		catch (SQLException e)
+		{}
 	}
 }

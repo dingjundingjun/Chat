@@ -105,7 +105,7 @@ public class MessageItem implements UIListener
 							if(mSendFileInfo != null)
 							{
 								mFileProgressBar.setMod(FileProgressBar.FILE_MOD_RECV);
-								mFileProgressBar.setSendFile(mContext,mSendFileInfo);
+								mFileProgressBar.setSendFile(mSendFileInfo);
 								mFileProgressBar.setListener(MessageItem.this);
 								mFileProgressBar.recvFile();
 							}

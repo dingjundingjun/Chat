@@ -20,4 +20,6 @@
     <string name="progress_key">进度key</string>
     <string name="recv_msg">接收</string>
     <string name="recv_finish">文件传输完成</string>
+    <string name="recv_error">文件传输失败</string>
+    <string name="recv_transporting">正在传输</string>
 </resources>

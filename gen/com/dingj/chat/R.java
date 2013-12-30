@@ -86,8 +86,10 @@ public final class R {
         public static final int hello_world=0x7f060002;
         public static final int name_cannot_null=0x7f06000c;
         public static final int progress_key=0x7f060010;
+        public static final int recv_error=0x7f060013;
         public static final int recv_finish=0x7f060012;
         public static final int recv_msg=0x7f060011;
+        public static final int recv_transporting=0x7f060014;
         public static final int send_file=0x7f060005;
         public static final int send_msg=0x7f060006;
         public static final int setting=0x7f060004;

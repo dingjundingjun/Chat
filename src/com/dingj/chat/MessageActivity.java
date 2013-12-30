@@ -189,7 +189,8 @@ public class MessageActivity extends Activity implements OnClickListener
 			}
 			case R.id.clean_all:
 			{
-				
+				SystemVar.db.clearSingleUserMessage(mSingleUser);
+				updateList();
 				break;
 			}
 			case R.id.file:    //发送文件

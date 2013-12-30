@@ -59,7 +59,6 @@ public class MessageAdapter extends BaseAdapter
 		if(convertView == null)
 		{
 			convertView = LinearLayout.inflate(mContext, R.layout.msg_item_layout, null);
-			
 		}
 		LinearLayout msgLayout = (LinearLayout) convertView.findViewById(R.id.msg_layout);
 		TextView textMsg = (TextView) convertView.findViewById(R.id.msg);
@@ -93,32 +92,58 @@ public class MessageAdapter extends BaseAdapter
 				mRecvBtn.setTag(R.string.time_key,temMsg.getUniqueTime());
 				mRecvBtn.setTag(R.string.progress_key,fileProgressBar);
 				fileProgressBar.setTipandMainView(mTextIip, progressLayout);
+				fileProgressBar.setContext(mContext);
 				SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser, temMsg.getUniqueTime());
-				if(sendFileInfo == null)
+				progressLayout.setVisibility(View.VISIBLE);
+				if(sendFileInfo == null)    //为空说明是掉线再进.
 				{
+					//需要重数据库里读取状态显示
+					int state = SystemVar.db.getFileTransportState(temMsg.getUniqueTime());
+					switch(state)
+					{
+						case SendFileInfo.TRANSSTATE_NOT_START:
+						case SendFileInfo.TRANSSTATE_TRANSLATING:
+						case SendFileInfo.TRANSSTATE_ERROR:
+						{
+							fileProgressBar.showTransportError();
+							break;
+						}
+						case SendFileInfo.TRANSSTATE_FINISH:
+						{
+							fileProgressBar.showTransportFinish();
+							break;
+						}
+					}
 					break;
+				}
+				fileProgressBar.setSendFile(sendFileInfo);
+				if(DEBUG)
+				{
+					JDingDebug.printfD(TAG, "sendFileInfo state =" + sendFileInfo.getTransState());
 				}
 				switch(sendFileInfo.getTransState())
 				{
 					case SendFileInfo.TRANSSTATE_NOT_START:
 					{
 						mRecvBtn.setText(R.string.recv_msg);
+						fileProgressBar.showTransportNotStart();
 						break;
 					}
 					case SendFileInfo.TRANSSTATE_TRANSLATING:
 					{
-						fileProgressBar.setSendFile(mContext,sendFileInfo);
 						fileProgressBar.recvFile();
 						mRecvBtn.setText(R.string.btn_cancel);
+						fileProgressBar.showTransporting();
 						break;
 					}
 					case SendFileInfo.TRANSSTATE_ERROR:
 					{
-						
+						fileProgressBar.showTransportError();
 						break;
 					}
 					case SendFileInfo.TRANSSTATE_FINISH:
 					{
+						fileProgressBar.showTransportFinish();
 						break;
 					}
 				}
@@ -137,41 +162,12 @@ public class MessageAdapter extends BaseAdapter
 							SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser,  (Long)v.getTag(R.string.time_key));
 							FileProgressBar tempBar = (FileProgressBar) v.getTag(R.string.progress_key);
 							tempBar.setMod(FileProgressBar.FILE_MOD_RECV);
-							tempBar.setSendFile(mContext,sendFileInfo);
+							tempBar.setSendFile(sendFileInfo);
 							tempBar.recvFile();
 						}
-						
-//						if(v.getTag(R.string.recv_msg).equals("recv"))
-//						{
-//							((Button)v).setText(R.string.btn_cancel);
-//							v.setTag(R.string.recv_msg,"cancel");
-//							int length = mSingleUser.getRecvList().size();
-//							for(int i = 0;i < length; i++)
-//							{
-//								long time = mSingleUser.getRecvList().get(i).getUniqueTime();
-//								JDingDebug.printfD(TAG, "onClick ==time:" + time + " " + (Long)v.getTag(R.string.time_key));
-//								if(time == (Long)v.getTag(R.string.time_key))
-//								{
-//									if(DEBUG)
-//									{
-//										JDingDebug.printfD(TAG, "开始接收文件咯:" + mSingleUser.getRecvList().get(i).getFileName());
-//									}
-//									
-//									break;
-//								}
-//							}
-//						}
-//						else
-//						{
-//							if(DEBUG)
-//							{
-//								JDingDebug.printfD(TAG, "取消传输");
-//							}
-//						}
-						
 					}
 				});
-				progressLayout.setVisibility(View.VISIBLE);
+
 				break;
 			}
 			case Util.IPM_MOD_SEND_FILE:

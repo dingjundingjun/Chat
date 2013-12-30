@@ -338,6 +338,7 @@ public class SendFileInfo
 				if (fileOutputStream != null)
 					fileOutputStream.flush();
 				setTransState(SendFileInfo.TRANSSTATE_FINISH);
+				SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_FINISH);    //将状态写入数据库
 			} 
 			catch (IOException e)
 			{
