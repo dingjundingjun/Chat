@@ -6,7 +6,10 @@ import java.net.Socket;
 import java.net.SocketAddress;
 
 import com.dingj.chatjar.content.SendFileInfo;
+import com.dingj.chatjar.content.SingleUser;
 import com.dingj.chatjar.util.SystemVar;
+import com.dingj.chatjar.util.UserInfo;
+import com.dingj.chatjar.util.Util;
 
 import jding.debug.JDingDebug;
 
@@ -31,9 +34,11 @@ public class SendFileHandler extends Thread
 			{
 				Socket socket = mServerSocket.accept();
 				SocketAddress  ss = socket.getRemoteSocketAddress();
-				JDingDebug.printfSystem("有TCP链接进来:" + ss.toString());
-				SendFileThread sendFileThread = new SendFileThread(socket);
-				sendFileThread.start();
+				String ip = socket.getInetAddress().getHostAddress();
+				JDingDebug.printfSystem("有TCP链接进来:" + ip);
+				SingleUser singleUser = Util.getUserWithIp(ip, UserInfo.getInstance());
+				singleUser.sendFile(socket);
+
 			} 
 			catch (IOException e) 
 			{

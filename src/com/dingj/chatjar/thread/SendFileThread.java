@@ -40,7 +40,6 @@ public class SendFileThread extends Thread
 			StringBuffer sb = new StringBuffer();
 			is = mSocket.getInputStream();
 			os = mSocket.getOutputStream();
-
 			int length = -1;
 			while ((length = is.read(but)) != -1)
 			{

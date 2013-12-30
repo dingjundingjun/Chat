@@ -1,7 +1,18 @@
 package com.dingj.chatjar.content;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
+
+import jding.debug.JDingDebug;
 
 import com.dingj.chatjar.util.SystemVar;
 
@@ -130,7 +141,10 @@ public class SingleUser
 	
 	public void addSendFile(SendFileInfo sendFileInfo)
 	{
-		
+		if(listRecv != null && !listRecv.contains(sendFileInfo))
+		{
+			listRecv.add(sendFileInfo);
+		}
 	}
 	
 	public List<SendFileInfo> getRecvList()
@@ -166,4 +180,55 @@ public class SingleUser
 			listAllMessage.clear();
 	}
 	
+	public void sendFile(Socket socket)
+	{
+		StringBuffer sb = new StringBuffer();
+		InputStream is = null;
+		OutputStream os = null;
+		byte[] but = new byte[524288];
+		try
+		{
+			is = socket.getInputStream();
+			os = socket.getOutputStream();
+			int length = -1;
+			while ((length = is.read(but)) != -1)
+			{
+				sb.append(new String(but, 0, length, "GBK"));
+				if (sb.toString().indexOf(":0:") != -1)
+				{
+					break;
+				}
+			}
+			if (sb.equals(""))
+				return;
+			String str = sb.toString();
+			JDingDebug.printfSystem("发送文件str:" + str);
+			StringTokenizer tokenizer = new StringTokenizer(str, ":", false);
+			tokenizer.nextToken();
+			tokenizer.nextToken();
+			tokenizer.nextToken();
+			tokenizer.nextToken();
+			String command = tokenizer.nextToken();
+			String no = tokenizer.nextToken();
+			no = no.toLowerCase();
+			SendFileInfo sendFileInfo = null;
+			for (int i = 0; i < listRecv.size(); i++)
+			{
+				String fileNo = listRecv.get(i).getFileNo();
+				if (fileNo.equals(no))
+				{
+					sendFileInfo = listRecv.get(i);
+					break;
+				}
+			}
+			if (sendFileInfo != null)
+			{
+				sendFileInfo.sendFile(is, os, socket);
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+	}
 }

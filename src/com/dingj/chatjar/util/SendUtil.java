@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 
 import com.dingj.chatjar.content.DataPacket;
 import com.dingj.chatjar.content.SendFileInfo;
+import com.dingj.chatjar.content.SingleUser;
 
 import android.content.Context;
 import android.net.wifi.WifiInfo;
@@ -225,13 +226,15 @@ public class SendUtil
 	    	 sendFileInfo.isDir = true;
 	     sendFileInfo.setFileSize(length);
 	     length = 0;
-	     SystemVar.TRANSPORT_FILE_LIST.add(sendFileInfo);
+//	     SystemVar.TRANSPORT_FILE_LIST.add(sendFileInfo);
+	     SingleUser singleUser = Util.getUserWithIp(ip, UserInfo.getInstance());
+	     singleUser.addSendFile(sendFileInfo);
 	     sendUdpPacket(data, data.getIp());
     }
 	
-	public static void sendFile(String ip,String path,long t)
+	public static void sendFile(String ip,String path,long unique)
     {
-	     DataPacket data=new DataPacket(IpMsgConstant.IPMSG_SENDMSG | IpMsgConstant.IPMSG_SENDCHECKOPT | IpMsgConstant.IPMSG_FILEATTACHOPT,t);
+	     DataPacket data=new DataPacket(IpMsgConstant.IPMSG_SENDMSG | IpMsgConstant.IPMSG_SENDCHECKOPT | IpMsgConstant.IPMSG_FILEATTACHOPT,0);
 	     File file = new File(path);
 	     data.setIp(ip);
 	     data.setAdditional(getSB(path,data));
@@ -240,11 +243,15 @@ public class SendUtil
 	     sendFileInfo.setFilePath(file.getPath());
 	     sendFileInfo.setSend(true);
 	     sendFileInfo.setIp(ip);
+	     sendFileInfo.setUniqueTime(unique);
 	     sendFileInfo.setFileName(file.getName());
+	     sendFileInfo.setTransState(SendFileInfo.TRANSSTATE_NOT_START);
 	     sendFileInfo.isStop = false;
 	     if(file.isDirectory())
 	    	 sendFileInfo.isDir = true;
-	     SystemVar.TRANSPORT_FILE_LIST.add(sendFileInfo);
+//	     SystemVar.TRANSPORT_FILE_LIST.add(sendFileInfo);
+	     SingleUser singleUser = Util.getUserWithIp(ip, UserInfo.getInstance());
+	     singleUser.addSendFile(sendFileInfo);
 	     sendUdpPacket(data, data.getIp());
     }
 }

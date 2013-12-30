@@ -57,6 +57,9 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		this.mContext =c;
 	}
 	
+	/**
+	 * 接收文件
+	 */
 	public void recvFile()
 	{
 		File file = new File(SystemVar.DEFAULT_FILE_PATH);
@@ -78,6 +81,26 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		}
 	}
 
+	/**
+	 * 发送文件
+	 * @param sendFileInfo
+	 */
+	public void sendFile()
+	{
+		if(mSendFileInfo.getTransState() == SendFileInfo.TRANSSTATE_TRANSLATING)
+		{
+			showTransporting();
+			setProgress(mSendFileInfo.getProgress());
+			mSendFileInfo.setListener(this);
+		}
+		else if(mSendFileInfo.getTransState() == SendFileInfo.TRANSSTATE_NOT_START)
+		{
+			mSendFileInfo.setListener(this);
+			setProgress(mSendFileInfo.getProgress());
+			showTransporting();
+		}
+	}
+	
 	@Override
 	public void setRecvProgress(int progress)
 	{
@@ -162,4 +185,6 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		mTextTip.setText(mContext.getText(R.string.recv_error));
 		mMainView.setVisibility(View.GONE);
 	}
+
+	
 }

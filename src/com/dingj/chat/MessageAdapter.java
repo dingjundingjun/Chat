@@ -69,6 +69,8 @@ public class MessageAdapter extends BaseAdapter
 		LinearLayout.LayoutParams param = (LayoutParams) msgLayout.getLayoutParams();
 		LinearLayout progressLayout = (LinearLayout) convertView.findViewById(R.id.progress_control);
 		TextView mTextIip = (TextView)convertView.findViewById(R.id.tip);
+		Button mRecvBtn = (Button)convertView.findViewById(R.id.progress_btn);
+		FileProgressBar fileProgressBar = (FileProgressBar)convertView.findViewById(R.id.progressBar);
 		switch(temMsg.getMod())
 		{
 			case Util.IPM_MOD_RECV:
@@ -91,15 +93,16 @@ public class MessageAdapter extends BaseAdapter
 			{
 				param.gravity = Gravity.LEFT;
 				msgLayout.setBackgroundResource(R.drawable.msg_item_from_bg);
-				Button mRecvBtn = (Button)convertView.findViewById(R.id.progress_btn);
-				
-				FileProgressBar fileProgressBar = (FileProgressBar)convertView.findViewById(R.id.progressBar);
 				mRecvBtn.setTag(R.string.time_key,temMsg.getUniqueTime());
 				mRecvBtn.setTag(R.string.progress_key,fileProgressBar);
 				fileProgressBar.setTipandMainView(mTextIip, progressLayout);
 				fileProgressBar.setContext(mContext);
 				SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser, temMsg.getUniqueTime());
 				progressLayout.setVisibility(View.VISIBLE);
+				if(DEBUG)
+				{
+					JDingDebug.printfD(TAG, "sendFileInfo time =" + temMsg.getUniqueTime());
+				}
 				if(sendFileInfo == null)    //为空说明是掉线再进.
 				{
 					//需要重数据库里读取状态显示
@@ -180,6 +183,55 @@ public class MessageAdapter extends BaseAdapter
 				msgLayout.setBackgroundResource(R.drawable.msg_item_to_bg);
 				param.gravity = Gravity.RIGHT;
 				progressLayout.setVisibility(View.VISIBLE);
+				
+				mRecvBtn.setTag(R.string.time_key,temMsg.getUniqueTime());
+				mRecvBtn.setTag(R.string.progress_key,fileProgressBar);
+				mRecvBtn.setText(mContext.getString(R.string.btn_cancel));
+				fileProgressBar.setTipandMainView(mTextIip, progressLayout);
+				fileProgressBar.setContext(mContext);
+				SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser, temMsg.getUniqueTime());
+				progressLayout.setVisibility(View.VISIBLE);
+				if(sendFileInfo == null)
+				{
+					//需要重数据库里读取状态显示
+					int state = SystemVar.db.getFileTransportState(temMsg.getUniqueTime());
+					switch(state)
+					{
+						case SendFileInfo.TRANSSTATE_NOT_START:
+						case SendFileInfo.TRANSSTATE_TRANSLATING:
+						case SendFileInfo.TRANSSTATE_ERROR:
+						{
+							fileProgressBar.showTransportError();
+							break;
+						}
+						case SendFileInfo.TRANSSTATE_FINISH:
+						{
+							fileProgressBar.showTransportFinish();
+							break;
+						}
+					}
+					break;
+				}
+				if(DEBUG)
+				{
+					JDingDebug.printfD(TAG, "sendFileInfo.getTransState:" + sendFileInfo.getTransState());
+				}
+				switch(sendFileInfo.getTransState())
+				{
+					case SendFileInfo.TRANSSTATE_NOT_START:
+					case SendFileInfo.TRANSSTATE_TRANSLATING:
+					{
+						fileProgressBar.setSendFile(sendFileInfo);
+						fileProgressBar.sendFile();
+						fileProgressBar.showTransporting();
+						break;
+					}
+					case SendFileInfo.TRANSSTATE_FINISH:
+					{
+						fileProgressBar.showTransportFinish();
+						break;
+					}
+				}
 				break;
 			}
 		}

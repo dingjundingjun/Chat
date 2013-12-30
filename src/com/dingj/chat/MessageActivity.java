@@ -195,8 +195,11 @@ public class MessageActivity extends Activity implements OnClickListener
 			}
 			case R.id.file:    //发送文件
 			{
-//				SendUtil.sendFile(mUserIp, "/mnt/sdcard/爸爸去哪儿.mp3", 0);
-				SendUtil.sendFiles(mUserIp,"/mnt/sdcard/哈哈",0);
+				//显示出消息
+				long unique = System.currentTimeMillis();
+//				SendUtil.sendFile(mUserIp, "/mnt/sdcard/爸爸去哪儿.mp3", unique);
+				SendUtil.sendFile(mUserIp,"/mnt/sdcard/哈哈",unique);
+				sendFileMsg("/mnt/sdcard/爸爸去哪儿.mp3",mUserIp,unique);
 				break;
 			}
 			case R.id.sendMsg:
@@ -214,10 +217,22 @@ public class MessageActivity extends Activity implements OnClickListener
 		}
 	}
 	
+	public void sendFileMsg(String path,String ip,long unique)
+	{
+		File file = new File(path);
+		if(file.exists())
+		{
+			mSingleUser.add(Util.newMessage(mSingleUser.getUserName(),file.getName(),ip,Util.IPM_MOD_SEND_FILE,unique));
+			SystemVar.db.setFileTransportState(unique,SendFileInfo.TRANSSTATE_NOT_START);    //将状态写入数据库
+			updateList();
+		}
+	}
+	
 	public void sendMsg(String msg,String ip)
 	{
+		long unique = System.currentTimeMillis();
 		SendUtil.sendMessage(msg, ip);
-		mSingleUser.add(Util.newMessage(mSingleUser.getUserName(),msg,ip));
+		mSingleUser.add(Util.newMessage(mSingleUser.getUserName(),msg,ip,Util.IPM_MOD_SEND,unique));
 		updateList();
 	}
 	

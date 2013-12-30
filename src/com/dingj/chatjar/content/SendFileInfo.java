@@ -1,12 +1,15 @@
 package com.dingj.chatjar.content;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.ListIterator;
 import java.util.Stack;
@@ -18,6 +21,7 @@ import com.dingj.chatjar.content.ReciveFile.ProgressListener;
 import com.dingj.chatjar.content.ReciveFile.ReciFileThread;
 import com.dingj.chatjar.util.IpMsgConstant;
 import com.dingj.chatjar.util.SystemVar;
+import com.dingj.chatjar.util.Util;
 
 public class SendFileInfo
 {
@@ -60,6 +64,9 @@ public class SendFileInfo
 	/**传输进度*/
 	public int mProgress = 0;
 	private ProgressListener mProgressListener;
+	private InputStream mIs;
+	private OutputStream mOs;
+	byte[] but = new byte[524288];
 	public SendFileInfo() 
 	{
 		super();
@@ -588,4 +595,170 @@ public class SendFileInfo
 	{
 		this.mProgressListener = pl;
 	}
+	
+	public void sendFile(InputStream is,OutputStream os,Socket socket)
+	{
+		mIs = is;
+		mOs = os;
+		try
+		{
+			if(isDir == false)
+			{
+				String path = getFilePath();
+				File file = new File(path);
+				setFileSize(file.length());
+				JDingDebug.printfSystem("sendFileInfo:" + file.length());
+				InputStream inputStream = new FileInputStream(file);
+				int length = -1;
+				while ((length = inputStream.read(but)) != -1)
+				{
+					if(isStop == true)
+					{
+	//					SystemVar.sendStopSendFile(sendFileInfo.getFileNo(),sendFileInfo.getIp());
+						break;
+					}
+					mOs.write(but, 0, length);
+					setSendSize(length);
+					int progress = (int) (getSendSize() * 100 / getFileSize());
+					if(mProgressListener != null)
+					{
+						mProgress = progress;
+						mProgressListener.setRecvProgress(progress);
+						if(DEBUG)
+						{
+							JDingDebug.printfD(TAG, "progress:" + progress + " fileSize:" + getFileSize() + " sendSize:" + getSendSize());
+						}
+					}
+				}
+				mOs.flush();
+				if(inputStream != null)
+				{
+					inputStream.close();
+				}
+			}
+			else	//发送的是文件夹
+			{
+				setProperty(getFileNo());
+				String path = getFilePath();
+				property = getProperty();
+				File parentFile = new File(path);
+				setFileSize(Util.getDirSize(parentFile));
+				mOs.write(getSB("2",parentFile).toString().getBytes(SystemVar.DEFAULT_CHARACT));
+				mOs.flush();
+				getFiles(new File(path),getIp());
+				mOs.write(getSB("3",parentFile).toString().getBytes(SystemVar.DEFAULT_CHARACT));
+				mOs.flush();
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		try
+		{
+			if (mIs != null)
+			{
+				mIs.close();
+			}
+			if (socket != null)
+			{
+				socket.close();
+			}
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		this.setTransState(SendFileInfo.TRANSSTATE_FINISH);
+		SystemVar.db.setFileTransportState(getUniqueTime(),SendFileInfo.TRANSSTATE_FINISH);    //将状态写入数据库
+	}
+	
+public void getFiles(File dir,String ip) throws UnknownHostException, IOException
+{
+	if(isStop == true)
+		return;
+	File[] files = dir.listFiles();
+	for(int k=0;k<files.length;k++)
+	{
+		File childFile = files[k];
+		if(childFile.isDirectory())
+		{
+			mOs.write(getSB("2",childFile).toString().getBytes(SystemVar.DEFAULT_CHARACT));
+			mOs.flush();
+			getFiles(childFile,ip);
+			mOs.write(getSB("3",childFile).toString().getBytes(SystemVar.DEFAULT_CHARACT));
+			mOs.flush();
+		}
+		else
+		{
+			JDingDebug.printfSystem("发送文件：" + childFile.getPath());
+			mOs.write(getSB("1",childFile).toString().getBytes(SystemVar.DEFAULT_CHARACT));
+			mOs.flush();
+			
+			//发送文件
+			InputStream inputStream = new FileInputStream(childFile);
+			int length = -1;
+			
+			while ((length = inputStream.read(but)) != -1)
+			{
+				if(isStop == true)
+				{
+					break;
+				}
+				setSendSize(length);
+				mOs.write(but, 0, length);
+				int progress = (int) (getSendSize() * 100 / getFileSize());
+				if(mProgressListener != null)
+				{
+					mProgress = progress;
+					mProgressListener.setRecvProgress(progress);
+					if(DEBUG)
+					{
+						JDingDebug.printfD(TAG, "progress:" + progress + " fileSize:" + getFileSize() + " sendSize:" + getSendSize());
+					}
+				}
+			}
+			mOs.flush();
+			if(inputStream != null)
+				inputStream.close();
+		}
+	}
+}
+
+public String getSB(String fileTemp,File file)
+{
+	StringBuffer parentsb = new StringBuffer();
+	parentsb.append(":");
+	if(fileTemp.equals("3"))
+	{
+		parentsb.append(".");
+	}
+	else
+		parentsb.append(file.getName());
+	parentsb.append(":");
+	if(fileTemp.equals("1"))
+	{
+		parentsb.append(Long.toString(file.length(),16));
+	}
+	else
+		parentsb.append("000000000");
+	parentsb.append(":");
+	parentsb.append(fileTemp);
+	parentsb.append(":");
+	parentsb.append("14=" + property);
+	parentsb.append(":");
+	parentsb.append("16=" + property);
+	parentsb.append(":");
+	byte[] b = null;
+	try {
+		b = parentsb.toString().getBytes(SystemVar.DEFAULT_CHARACT);
+	} catch (UnsupportedEncodingException e) 
+	{
+		e.printStackTrace();
+	}
+	long len  = b.length + 4;
+	Long.toString(len, 16);
+	parentsb.insert(0, "00" + Long.toString(len, 16));
+	JDingDebug.printfSystem("sb:" + parentsb);
+	return parentsb.toString();
+}
 }

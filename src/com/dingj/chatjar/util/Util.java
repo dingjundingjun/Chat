@@ -147,14 +147,15 @@ public static String getTime()
 	 * @param ip
 	 * @return
 	 */
-	public static IpmMessage newMessage(String sender,String msg,String ip)
+	public static IpmMessage newMessage(String sender,String msg,String ip,int mod,long unique)
 	{
 		IpmMessage ipmMessage = new IpmMessage();
 		ipmMessage.setIp(ip);
+		ipmMessage.setUniqueTime(unique);
 		ipmMessage.setText(msg);
 		ipmMessage.setName(sender);
 		ipmMessage.setTime(getTime());
-		ipmMessage.setMod(Util.IPM_MOD_SEND);
+		ipmMessage.setMod(mod);
 		return ipmMessage;
 	}
 	
@@ -176,5 +177,43 @@ public static String getTime()
 			}
 		}
 		return null;
+	}
+	
+	public static long getDirLength(String path)
+	{
+		File file = new File(path);
+		if(file.exists())
+		{
+			return getDirSize(file);
+		}
+		return -1;
+	}
+	
+	/**
+	* Description:获取目录大小
+	* @param file
+	*/
+	public static long getDirSize(File file)
+	{
+		long size = 0;
+		if(file.isDirectory())
+		{
+			File[] fileList = file.listFiles();
+			if(fileList != null)
+			{
+				for(int i=0;i<fileList.length;i++)
+				{
+					if(fileList[i].isDirectory())
+					{
+						size += getDirSize(fileList[i]);
+					}
+					else
+					{
+						size += fileList[i].length();
+					}
+				}
+			}
+		}
+		return size;
 	}
 }
