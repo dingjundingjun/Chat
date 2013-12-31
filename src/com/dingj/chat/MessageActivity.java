@@ -119,8 +119,7 @@ public class MessageActivity extends Activity implements OnClickListener
 					{
 						JDingDebug.printfD(TAG, "Notify new msg");
 					}
-					mMessageAdapter.setUser(mSingleUser);
-					mMessageAdapter.notifyDataSetChanged();
+					updateList();
 					break;
 				}
 				case Util.HANDLER_RECV_FILE:
@@ -278,6 +277,7 @@ public class MessageActivity extends Activity implements OnClickListener
 	{
 		mMessageAdapter.setUser(mSingleUser);
 		mMessageAdapter.notifyDataSetChanged();
+		mMessageList.setSelection(mMessageAdapter.getCount() - 1);
 	}
 	
 	
