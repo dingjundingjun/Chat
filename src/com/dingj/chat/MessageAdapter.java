@@ -269,6 +269,10 @@ public class MessageAdapter extends BaseAdapter
 		return convertView;
 	}
 	
+	/**
+	 * 设置用户，读取该用户消息
+	 * @param su
+	 */
 	public void setUser(SingleUser su)
 	{
 		this.mSingleUser = su;

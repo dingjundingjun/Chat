@@ -96,7 +96,7 @@ public class MessageActivity extends Activity implements OnClickListener
 		@Override
 		public void sendStop()
 		{
-
+			
 		}
 
 		@Override
@@ -240,6 +240,12 @@ public class MessageActivity extends Activity implements OnClickListener
 		}
 	}
 
+	/**
+	 * 发送文件
+	 * @param path
+	 * @param ip
+	 * @param unique
+	 */
 	public void sendFileMsg(String path,String ip,long unique)
 	{
 		File file = new File(path);
@@ -251,6 +257,11 @@ public class MessageActivity extends Activity implements OnClickListener
 		}
 	}
 	
+	/**
+	 * 发送普通消息
+	 * @param msg
+	 * @param ip
+	 */
 	public void sendMsg(String msg,String ip)
 	{
 		long unique = System.currentTimeMillis();
@@ -279,8 +290,4 @@ public class MessageActivity extends Activity implements OnClickListener
 		mMessageAdapter.notifyDataSetChanged();
 		mMessageList.setSelection(mMessageAdapter.getCount() - 1);
 	}
-	
-	
-	
-	
 }

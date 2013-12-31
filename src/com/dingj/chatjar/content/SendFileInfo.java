@@ -400,6 +400,13 @@ public class SendFileInfo
 
 		int jdtemp = 0;
 
+		/**
+		 * 读取文件夹
+		 * @param stack
+		 * @param inputStream
+		 * @param rootDirInfo
+		 * @return
+		 */
 		public boolean readDir(Stack<String> stack, InputStream inputStream,
 				FileDirInfo rootDirInfo)
 		{
@@ -598,6 +605,12 @@ public class SendFileInfo
 		this.mProgressListener = pl;
 	}
 	
+	/**
+	 * 发送文件
+	 * @param is
+	 * @param os
+	 * @param socket
+	 */
 	public void sendFile(InputStream is,OutputStream os,Socket socket)
 	{
 		mIs = is;

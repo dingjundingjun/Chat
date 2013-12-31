@@ -11,6 +11,11 @@ import android.widget.Toast;
 
 import com.dingj.chatjar.util.SystemVar;
 
+/**
+ * 设置界面
+ * @author dingj
+ *
+ */
 public class SettingActivity extends Activity implements OnClickListener
 {
 	/**用户姓名*/
