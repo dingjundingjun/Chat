@@ -26,6 +26,7 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 	private SendFileInfo mSendFileInfo;
 	/**更新UI*/
 	private final int HANDLER_UPDATE_UI = 0;
+	private final int HANDLER_SHOW_ERROR = 1;
 	private UIHandler mUIHandler = new UIHandler();
 	private UIListener mUIListener;
 	/**显示提示*/
@@ -110,6 +111,14 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		mUIHandler.sendMessage(msg);
 	}
 	
+	@Override
+	public void translateError()
+	{
+		Message msg = mUIHandler.obtainMessage();
+		msg.what = HANDLER_SHOW_ERROR;
+		mUIHandler.sendMessage(msg);
+	}
+
 	public class UIHandler extends Handler
 	{
 
@@ -127,6 +136,11 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 					{
 						showTransportFinish();
 					}
+					break;
+				}
+				case HANDLER_SHOW_ERROR:
+				{
+					showTransportError();
 					break;
 				}
 			}
@@ -186,5 +200,6 @@ public class FileProgressBar extends ProgressBar implements ProgressListener
 		mMainView.setVisibility(View.GONE);
 	}
 
+	
 	
 }

@@ -263,29 +263,26 @@ public class DataPacketHandler extends DataPacketAnalytical
 	public void stopFile(DataPacket dataPacket)
 	{
 		String fileNo = dataPacket.getAdditional();
+		String ip = dataPacket.getIp();
+		SingleUser singleUser = Util.getUserWithIp(ip, UserInfo.getInstance());
 		JDingDebug.printfSystem("that:" + fileNo);
-		for (int i = 0; i < SystemVar.TRANSPORT_FILE_LIST
-				.size(); i++)
+		for (int i = 0; i < singleUser.getRecvList().size(); i++)
 		{
-			JDingDebug.printfSystem("this:"
-					+ SystemVar.TRANSPORT_FILE_LIST.get(i)
-							.getDataPacker().getPacketNo()
-					+ " that:" + fileNo);
-			String longFileNo = Long.toHexString(Long.valueOf(
-					SystemVar.TRANSPORT_FILE_LIST.get(i)
-							.getDataPacker().getPacketNo())
-					.longValue());
-			if (fileNo.equals(longFileNo))
-				;
-			// if((SystemVar.TRANSPORT_FILE_LIST.get(i).getFileNo()
-			// + "0").equals(fileNo))
+			SendFileInfo sendInfo = singleUser.getRecvList().get(i);
+			JDingDebug.printfSystem("this:" + sendInfo.getDataPacker().getPacketNo()+ " that:" + fileNo);
+//			String longFileNo = Long.toHexString(Long.valueOf(sendInfo.getDataPacker().getPacketNo()).longValue());
+			if(DEBUG)
+			{
+				JDingDebug.printfD(TAG, "fileNo:" + fileNo + " longFileNo:" + sendInfo.getDataPacker().getPacketNo());
+			}
+			if (fileNo.startsWith(sendInfo.getDataPacker().getPacketNo()))
 			{
 				JDingDebug.printfSystem("中断");
-				SystemVar.TRANSPORT_FILE_LIST.get(i).isBreakTransport = true;
+				sendInfo.setTransState(SendFileInfo.TRANSSTATE_ERROR);
 				break;
 			}
 		}
-		sendStop();
+//		sendStop();
 	}
 
 	@Override

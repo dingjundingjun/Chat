@@ -19,6 +19,7 @@ import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.MessageItem;
 import com.dingj.chatjar.content.SendFileInfo;
 import com.dingj.chatjar.content.SingleUser;
+import com.dingj.chatjar.util.SendUtil;
 import com.dingj.chatjar.util.SystemVar;
 import com.dingj.chatjar.util.Util;
 
@@ -231,7 +232,28 @@ public class MessageAdapter extends BaseAdapter
 						fileProgressBar.showTransportFinish();
 						break;
 					}
+					case SendFileInfo.TRANSSTATE_ERROR:
+					{
+						fileProgressBar.showTransportError();
+						break;
+					}
 				}
+				mRecvBtn.setOnClickListener(new OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						if(((Button)v).getText().equals(mContext.getString(R.string.btn_cancel)))
+						{
+							SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser,  (Long)v.getTag(R.string.time_key));
+							sendFileInfo.setTransState(SendFileInfo.TRANSSTATE_ERROR);
+							FileProgressBar tempBar = (FileProgressBar) v.getTag(R.string.progress_key);
+							SendUtil.sendStopFileTranslate(sendFileInfo.getIp(),sendFileInfo.getFileNo());
+							tempBar.showTransportError();
+						}
+					
+					}
+				});
 				break;
 			}
 		}

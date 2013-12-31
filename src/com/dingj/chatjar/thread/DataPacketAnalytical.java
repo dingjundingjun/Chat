@@ -58,7 +58,7 @@ public abstract class DataPacketAnalytical implements Runnable
 						
 						break;
 					}
-					case IpMsgConstant.IPMSG_STOPFILE:// 停止发送
+					case IpMsgConstant.IPMSG_STOPFILE:// 对方取消发送
 					{
 						stopFile(dataPacket);
 						break;
@@ -88,7 +88,7 @@ public abstract class DataPacketAnalytical implements Runnable
 	/**停止接收文件*/
 	public abstract void stopRecive(DataPacket dataPacket);
 	
-	/**停止发送文件*/
+	/**对方停止发送文件*/
 	public abstract void stopFile(DataPacket dataPacket);
 	
 	/**用户下线*/

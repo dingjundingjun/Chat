@@ -29,7 +29,7 @@ import jding.debug.JDingDebug;
 public class SendUtil
 {
 	private static final String TAG = "NetUtil";
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private static int length = 0;
 	/**
 	 * 判断端口是否被占用
@@ -209,29 +209,12 @@ public class SendUtil
 		}
 	}
 	
-	public static void sendFiles(String ip,String path,long t)
-    {
-    	 DataPacket data=new DataPacket(IpMsgConstant.IPMSG_SENDMSG | IpMsgConstant.IPMSG_SENDCHECKOPT | IpMsgConstant.IPMSG_FILEATTACHOPT,t);//3146272
-    	 File file = new File(path);
-	     data.setIp(ip);
-	     data.setAdditional(getSB(path,data));
-	     SendFileInfo sendFileInfo = new SendFileInfo();
-	     sendFileInfo.setFileNo(Long.toHexString(Long.parseLong(data.getPacketNo())));
-	     sendFileInfo.setFilePath(file.getPath());
-	     sendFileInfo.setSend(true);
-	     sendFileInfo.setIp(ip);
-	     sendFileInfo.setFileName(file.getName());
-	     sendFileInfo.isStop = false;
-	     if(file.isDirectory())
-	    	 sendFileInfo.isDir = true;
-	     sendFileInfo.setFileSize(length);
-	     length = 0;
-//	     SystemVar.TRANSPORT_FILE_LIST.add(sendFileInfo);
-	     SingleUser singleUser = Util.getUserWithIp(ip, UserInfo.getInstance());
-	     singleUser.addSendFile(sendFileInfo);
-	     sendUdpPacket(data, data.getIp());
-    }
-	
+	/**
+	 * 发送文件
+	 * @param ip
+	 * @param path
+	 * @param unique
+	 */
 	public static void sendFile(String ip,String path,long unique)
     {
 	     DataPacket data=new DataPacket(IpMsgConstant.IPMSG_SENDMSG | IpMsgConstant.IPMSG_SENDCHECKOPT | IpMsgConstant.IPMSG_FILEATTACHOPT,0);
@@ -254,4 +237,18 @@ public class SendUtil
 	     singleUser.addSendFile(sendFileInfo);
 	     sendUdpPacket(data, data.getIp());
     }
+	
+	/**
+	 * 停止传送文件
+	 * @param ip
+	 * @param fileNo
+	 */
+	public static void sendStopFileTranslate(String ip,String fileNo)
+	{
+		DataPacket data=new DataPacket(IpMsgConstant.IPMSG_STOPFILE,0);
+//		tempFileDirInfo.setSize(Integer.valueOf(str, 16));
+	     data.setIp(ip);
+	     data.setAdditional(""+Integer.valueOf(fileNo, 16));
+	     sendUdpPacket(data, data.getIp());
+	}
 }

@@ -282,6 +282,7 @@ public class SendFileInfo
 					while (allow < fileSize
 							&& ((rLength = inputStream.read(buf)) != -1))
 					{
+						
 						if (fileOutputStream == null)
 						{
 							if (!file.exists())
@@ -294,6 +295,7 @@ public class SendFileInfo
 						fileOutputStream.flush();
 						allow += rLength;
 						int progress = (int) (allow*100/fileSize);
+						
 						if(mProgressListener != null)
 						{
 							mProgress = progress;
@@ -302,6 +304,15 @@ public class SendFileInfo
 							{
 								JDingDebug.printfD(TAG, "progress:" + progress + " fileSize:" + getFileSize() + " sendSize:" + getSendSize());
 							}
+						}
+						if(getTransState() == TRANSSTATE_ERROR)
+						{
+							if(mProgressListener != null)
+							{
+								mProgressListener.translateError();
+								SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_ERROR);    //将状态写入数据库
+							}
+							break;
 						}
 						setSendSize(rLength);
 						if (isStop == true)
@@ -358,8 +369,11 @@ public class SendFileInfo
 				}
 				if (fileOutputStream != null)
 					fileOutputStream.flush();
-				setTransState(SendFileInfo.TRANSSTATE_FINISH);
-				SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_FINISH);    //将状态写入数据库
+				if(getTransState() == SendFileInfo.TRANSSTATE_TRANSLATING)
+				{
+					setTransState(SendFileInfo.TRANSSTATE_FINISH);
+					SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_FINISH);    //将状态写入数据库
+				}
 			} 
 			catch (IOException e)
 			{
@@ -462,22 +476,6 @@ public class SendFileInfo
 					}
 					i++;
 				}
-				// if (rootDirInfo.getProperty14() ==
-				// null&&rootDirInfo.getProperty16() == null)
-				// {
-				// rootDirInfo.setProperty14(tempFileDirInfo.getProperty14()) ;
-				// rootDirInfo.setProperty16(tempFileDirInfo.getProperty16()) ;
-				// }
-				// else
-				// {
-				// if
-				// (tempFileDirInfo.getProperty14().equals(rootDirInfo.getProperty14())
-				// &&
-				// tempFileDirInfo.getProperty16().equals(rootDirInfo.getProperty16()))
-				// {
-				// //isReturn = true;
-				// }
-				// }
 				if (tempFileDirInfo.getProperty().equals("3"))    //跳出目录
 				{
 					stack.pop();
@@ -552,14 +550,17 @@ public class SendFileInfo
 								JDingDebug.printfD(TAG, "progress:" + progress + " fileSize:" + getFileSize() + " sendSize:" + getSendSize());
 							}
 						}
+						if(getTransState() == TRANSSTATE_ERROR)
+						{
+							if(mProgressListener != null)
+							{
+								mProgressListener.translateError();
+								SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_ERROR);    //将状态写入数据库
+							}
+							break;
+						}
 						outputStream.write(buf, 0, rlength);
 						outputStream.flush();
-						// JDingDebug.printfSystem("buflength:" + bufLength +
-						// " tempSize:" + tempSize + " rlenght:" + rlength);
-						// if(mSendFileInfo.isStop == true)
-						// {
-						// break;
-						// }
 					}
 					outputStream.flush();
 				}
@@ -589,6 +590,7 @@ public class SendFileInfo
 	public interface ProgressListener 
 	{
 		public abstract void setRecvProgress(int progress);
+		public abstract void translateError();
 	}
 	
 	public void setListener(ProgressListener pl)
@@ -612,9 +614,9 @@ public class SendFileInfo
 				int length = -1;
 				while ((length = inputStream.read(but)) != -1)
 				{
-					if(isStop == true)
+					if(getTransState() == TRANSSTATE_ERROR)
 					{
-	//					SystemVar.sendStopSendFile(sendFileInfo.getFileNo(),sendFileInfo.getIp());
+						SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_ERROR);    //将状态写入数据库
 						break;
 					}
 					mOs.write(but, 0, length);
@@ -668,13 +670,16 @@ public class SendFileInfo
 		{
 			e.printStackTrace();
 		}
-		this.setTransState(SendFileInfo.TRANSSTATE_FINISH);
-		SystemVar.db.setFileTransportState(getUniqueTime(),SendFileInfo.TRANSSTATE_FINISH);    //将状态写入数据库
+		if(getTransState() == SendFileInfo.TRANSSTATE_TRANSLATING)
+		{
+			this.setTransState(SendFileInfo.TRANSSTATE_FINISH);
+			SystemVar.db.setFileTransportState(getUniqueTime(),SendFileInfo.TRANSSTATE_FINISH);    //将状态写入数据库
+		}
 	}
 	
 public void getFiles(File dir,String ip) throws UnknownHostException, IOException
 {
-	if(isStop == true)
+	if(getTransState() == TRANSSTATE_ERROR)
 		return;
 	File[] files = dir.listFiles();
 	for(int k=0;k<files.length;k++)
@@ -700,8 +705,12 @@ public void getFiles(File dir,String ip) throws UnknownHostException, IOExceptio
 			
 			while ((length = inputStream.read(but)) != -1)
 			{
-				if(isStop == true)
+				if(getTransState() == TRANSSTATE_ERROR)
 				{
+					mOs.flush();
+					if(inputStream != null)
+						inputStream.close();
+					SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_ERROR);    //将状态写入数据库
 					break;
 				}
 				setSendSize(length);
