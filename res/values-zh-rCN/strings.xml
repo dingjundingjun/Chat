@@ -22,4 +22,5 @@
     <string name="recv_finish">文件传输完成</string>
     <string name="recv_error">文件传输失败</string>
     <string name="recv_transporting">正在传输</string>
+    <string name="last_dir">上级目录</string>
 </resources>

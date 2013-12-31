@@ -1,6 +1,7 @@
 package com.dingj.chat;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import jding.debug.JDingDebug;
 import android.app.Activity;
@@ -16,12 +17,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dingj.chatjar.ChatServiceController;
-import com.dingj.chatjar.content.DataPacket;
 import com.dingj.chatjar.content.IpmMessage;
 import com.dingj.chatjar.content.Observer;
 import com.dingj.chatjar.content.SendFileInfo;
 import com.dingj.chatjar.content.SingleUser;
-import com.dingj.chatjar.util.IpMsgConstant;
 import com.dingj.chatjar.util.SendUtil;
 import com.dingj.chatjar.util.SystemVar;
 import com.dingj.chatjar.util.UserInfo;
@@ -59,6 +58,8 @@ public class MessageActivity extends Activity implements OnClickListener
 	private NotifyHandler mNotifyHandler = new NotifyHandler();
 	/**监听类*/
 	private NotifyObserver mNotifyObserver = new NotifyObserver();
+	private final int SELECT_RESULT	= 0;
+	private ArrayList<String> mFileList;
 	private class NotifyObserver extends Observer
 	{
 		@Override
@@ -195,11 +196,8 @@ public class MessageActivity extends Activity implements OnClickListener
 			}
 			case R.id.file:    //发送文件
 			{
-				//显示出消息
-				long unique = System.currentTimeMillis();
-//				SendUtil.sendFile(mUserIp, "/mnt/sdcard/爸爸去哪儿.mp3", unique);
-				SendUtil.sendFile(mUserIp,"/mnt/sdcard/哈哈",unique);
-				sendFileMsg("/mnt/sdcard/爸爸去哪儿.mp3",mUserIp,unique);
+				Intent intent = new Intent(this,SelectFileActivity.class);
+				startActivityForResult(intent, SELECT_RESULT);
 				break;
 			}
 			case R.id.sendMsg:
@@ -217,6 +215,33 @@ public class MessageActivity extends Activity implements OnClickListener
 		}
 	}
 	
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == SELECT_RESULT && resultCode == SelectFileActivity.SELECT_RESULT)
+		{
+			mFileList = data.getStringArrayListExtra(SelectFileActivity.EXTRA_FILE_LIST);
+			for(int i = 0;i<mFileList.size();i++)
+			{
+				long unique = System.currentTimeMillis();
+	//			SendUtil.sendFile(mUserIp, "/mnt/sdcard/爸爸去哪儿.mp3", unique);    测试用
+//				SendUtil.sendFile(mUserIp,"/mnt/sdcard/哈哈",unique);    测试用
+				try
+				{
+					Thread.sleep(200);
+				} catch (InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				SendUtil.sendFile(mUserIp,mFileList.get(i),unique);
+				sendFileMsg(mFileList.get(i),mUserIp,unique);
+			}
+		}
+	}
+
 	public void sendFileMsg(String path,String ip,long unique)
 	{
 		File file = new File(path);

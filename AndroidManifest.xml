@@ -38,6 +38,11 @@
              android:screenOrientation="landscape"
             >
         </activity>
+        <activity
+            android:name="com.dingj.chat.SelectFileActivity"
+             android:screenOrientation="landscape"
+            >
+        </activity>
         <service 
             android:name="com.dingj.chatjar.ChatService"
             >
