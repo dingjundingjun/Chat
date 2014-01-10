@@ -98,6 +98,7 @@ public class MessageAdapter extends BaseAdapter
 				mRecvBtn.setTag(R.string.progress_key,fileProgressBar);
 				fileProgressBar.setTipandMainView(mTextIip, progressLayout);
 				fileProgressBar.setContext(mContext);
+				fileProgressBar.setProgress(0);
 				SendFileInfo sendFileInfo = Util.getSendFileInfoFromUnique(mSingleUser, temMsg.getUniqueTime());
 				progressLayout.setVisibility(View.VISIBLE);
 				if(DEBUG)

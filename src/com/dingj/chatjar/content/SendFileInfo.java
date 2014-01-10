@@ -83,6 +83,7 @@ public class SendFileInfo
 	public void setTransState(int state)
 	{
 		mTransState = state;
+		SystemVar.db.setFileTransportState(uniqueTime, state);
 	}
 	
 	/**
@@ -269,6 +270,7 @@ public class SendFileInfo
 				outputStream.flush(); // 首先请求接收文件
 				int rLength = 0;
 				setTransState(SendFileInfo.TRANSSTATE_TRANSLATING);
+				
 				if (getProperty().equals("1")
 						|| getProperty().equals("2001")) // 文件
 				{
@@ -309,8 +311,8 @@ public class SendFileInfo
 						{
 							if(mProgressListener != null)
 							{
+								setTransState(TRANSSTATE_ERROR);
 								mProgressListener.translateError();
-								SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_ERROR);    //将状态写入数据库
 							}
 							break;
 						}
@@ -372,7 +374,6 @@ public class SendFileInfo
 				if(getTransState() == SendFileInfo.TRANSSTATE_TRANSLATING)
 				{
 					setTransState(SendFileInfo.TRANSSTATE_FINISH);
-					SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_FINISH);    //将状态写入数据库
 				}
 			} 
 			catch (IOException e)
@@ -561,8 +562,8 @@ public class SendFileInfo
 						{
 							if(mProgressListener != null)
 							{
+								setTransState(SendFileInfo.TRANSSTATE_ERROR);
 								mProgressListener.translateError();
-								SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_ERROR);    //将状态写入数据库
 							}
 							break;
 						}
@@ -629,7 +630,7 @@ public class SendFileInfo
 				{
 					if(getTransState() == TRANSSTATE_ERROR)
 					{
-						SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_ERROR);    //将状态写入数据库
+						setTransState(SendFileInfo.TRANSSTATE_ERROR);
 						break;
 					}
 					mOs.write(but, 0, length);
@@ -686,7 +687,6 @@ public class SendFileInfo
 		if(getTransState() == SendFileInfo.TRANSSTATE_TRANSLATING)
 		{
 			this.setTransState(SendFileInfo.TRANSSTATE_FINISH);
-			SystemVar.db.setFileTransportState(getUniqueTime(),SendFileInfo.TRANSSTATE_FINISH);    //将状态写入数据库
 		}
 	}
 	
@@ -723,7 +723,7 @@ public void getFiles(File dir,String ip) throws UnknownHostException, IOExceptio
 					mOs.flush();
 					if(inputStream != null)
 						inputStream.close();
-					SystemVar.db.setFileTransportState(uniqueTime,SendFileInfo.TRANSSTATE_ERROR);    //将状态写入数据库
+					setTransState(SendFileInfo.TRANSSTATE_ERROR);
 					break;
 				}
 				setSendSize(length);
